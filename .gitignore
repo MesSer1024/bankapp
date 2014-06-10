@@ -1,0 +1,6 @@
+_assets/*
+*.suo
+*/bin/*
+*/obj/*
+bin/*
+obj/*

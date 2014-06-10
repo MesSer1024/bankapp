@@ -1,0 +1,33 @@
+﻿<Window x:Class="BankApp.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:my="clr-namespace:System.Windows.Controls.DataVisualization.Charting;assembly=System.Windows.Controls.DataVisualization.Toolkit"
+        Title="MainWindow" Height="800" Width="1440">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"  />
+            <ColumnDefinition />
+        </Grid.ColumnDefinitions>
+        <DataGrid HorizontalContentAlignment="Stretch" Name="_grid" ItemsSource="{Binding Transaction}" 
+                  AutoGenerateColumns="False"
+          CanUserReorderColumns="True" CanUserResizeColumns="True" 
+          CanUserResizeRows="False" CanUserSortColumns="True" CanUserDeleteRows="False" CanUserAddRows="False" AlternationCount="2" Padding="4">
+            <DataGrid.Columns>
+                <DataGridTextColumn Binding="{Binding Date}" Header="Date" IsReadOnly="True" />
+                <DataGridTextColumn Binding="{Binding Info}" Header="Info" IsReadOnly="True"/>
+                <DataGridTextColumn Binding="{Binding Amount}" Header="Amount" IsReadOnly="True"/>
+                <DataGridTextColumn Binding="{Binding Category}" Header="Category" IsReadOnly="False" />
+
+            </DataGrid.Columns>
+        </DataGrid>
+        <Grid Grid.Column="1" Name="_content">
+            <my:Chart Height="262" Name="ColumnChart1" Title="Total Marks" Width="262" VerticalAlignment="Top">
+                <my:ColumnSeries DependentValuePath="Value" IndependentValuePath="Key" ItemsSource="{Binding}" IsSelectionEnabled="True"/>
+            </my:Chart>
+            <my:Chart Name="PieChart1" Title="Total Marks" VerticalAlignment="Top" Margin="0,262,0,0" Height="262">
+                <my:PieSeries DependentValuePath="Value" IndependentValuePath="Key" ItemsSource="{Binding}" IsSelectionEnabled="True" />
+            </my:Chart>
+        </Grid>
+        <!--<ListBox Name="_items" />-->
+    </Grid>
+</Window>
