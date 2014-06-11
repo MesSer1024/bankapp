@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace BankAppLib
 {
@@ -23,8 +24,21 @@ namespace BankAppLib
         }
     }
 
-    public class Class1
+    public class BankLib
     {
+        private TextWriter _output;
+
+        public BankLib(TextWriter errorStream)
+        {
+            _output = errorStream;
+        }
+
+        private class SaveDataState
+        {
+            public DateTime LastModification { get; set; }
+            public List<Transaction> Transactions { get; set; }
+        }
+
         public void parseFile(string path, ref List<Transaction> transactions)
         {
             var file = new FileInfo(path);
@@ -76,8 +90,30 @@ namespace BankAppLib
                 }
                 transactions.Add(t);
             }
-            Console.WriteLine("Errors: \n", sb.ToString());
-            int asdf = transactions.Count;
+            _output.WriteLine(sb.ToString());
+        }
+
+        public void Save(List<Transaction> transactions)
+        {
+            var state = new SaveDataState() { Transactions = transactions, LastModification = DateTime.Now };
+            var jsonText = JsonConvert.SerializeObject(state);
+
+            var file = new FileInfo("./output/LastState.mdb");
+            if (!file.Directory.Exists)
+                file.Directory.Create();
+
+            using (var sw = new StreamWriter(file.FullName, false))
+            {
+                sw.Write(jsonText);
+                sw.Flush();
+            }
+            File.Copy(file.FullName, Path.Combine(file.Directory.FullName, "state_" + DateTime.Now.Ticks + ".mdb"));
+        }
+
+        public List<Transaction> Load(string path = "./output/LastState.mdb")
+        {
+            var state = JsonConvert.DeserializeObject<SaveDataState>(File.ReadAllText(path));
+            return state.Transactions;
         }
     }
 }
