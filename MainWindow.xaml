@@ -14,6 +14,21 @@
             </ObjectDataProvider.MethodParameters>
         </ObjectDataProvider>
     </Window.Resources>
+    <Window.CommandBindings>
+        <CommandBinding Command="Save" Executed="onSave"></CommandBinding>
+        <CommandBinding Command="Open" Executed="onLoad" />
+    </Window.CommandBindings>
+    <Window.InputBindings>
+        <KeyBinding Key="S" Modifiers="Control" Command="Save" />
+        <KeyBinding Key="O" Modifiers="Control" Command="Open" />
+    </Window.InputBindings>
+    <DockPanel>
+        <Menu DockPanel.Dock="Top" MinHeight="20">
+            <MenuItem Header="File">
+                <MenuItem Header="Save" Command="Save" />
+                <MenuItem Header="Load" Command="Open" />
+            </MenuItem>
+        </Menu>
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"  />
@@ -24,10 +39,9 @@
                 <RowDefinition Height="30" />
                 <RowDefinition />                
             </Grid.RowDefinitions>
-            <DockPanel>
-                <ComboBox DockPanel.Dock="Right" MinWidth="125" MaxWidth="225" VerticalContentAlignment="Center" HorizontalAlignment="Right" HorizontalContentAlignment="Right" Padding="0,0,8,0" ItemsSource="{Binding Source={StaticResource EnumDataProvider}, Mode=OneWay}" DropDownClosed="ComboBox_DropDownClosed_1">
-                </ComboBox>
-                <Label DockPanel.Dock="Left" HorizontalAlignment="Right" VerticalContentAlignment="Center" Content="Category: " />
+            <DockPanel Background="Yellow">
+                <ComboBox DockPanel.Dock="Right" Margin="5" MinWidth="125" MaxWidth="225" VerticalContentAlignment="Center" HorizontalAlignment="Right" HorizontalContentAlignment="Right" Padding="0,0,8,0" ItemsSource="{Binding Source={StaticResource EnumDataProvider}, Mode=OneWay}" DropDownClosed="ComboBox_DropDownClosed_1" />
+                <Label DockPanel.Dock="Left" Margin="0,0,5,0" HorizontalAlignment="Right" VerticalContentAlignment="Center" Content="Category: " />
             </DockPanel>
             <DataGrid Grid.Row="1" HorizontalContentAlignment="Stretch" Name="_grid" ItemsSource="{Binding Transaction}" AutoGenerateColumns="False"
           CanUserReorderColumns="True" CanUserResizeColumns="True" CanUserResizeRows="False" CanUserSortColumns="True" 
@@ -50,4 +64,5 @@
         </Grid>
         <!--<ListBox Name="_items" />-->
     </Grid>
+    </DockPanel>
 </Window>
