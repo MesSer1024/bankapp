@@ -59,14 +59,17 @@ namespace BankApp
 
         private void showColumnChart()
         {
-            List<KeyValuePair<string, int>> MyValue = new List<KeyValuePair<string, int>>();
-            MyValue.Add(new KeyValuePair<string, int>("Mahak", 300));
-            MyValue.Add(new KeyValuePair<string, int>("Pihu", 250));
-            MyValue.Add(new KeyValuePair<string, int>("Rahul", 289));
-            MyValue.Add(new KeyValuePair<string, int>("Raj", 256));
-            MyValue.Add(new KeyValuePair<string, int>("Vikas", 140));
-            ColumnChart1.DataContext = MyValue;
-            PieChart1.DataContext = MyValue;
+            var chartData = new Dictionary<string, int>();
+            foreach (var t in _transactions)
+            {
+                var s = Enum.GetName(typeof(TransactionCategory), t.Category);
+                if(chartData.ContainsKey(s))
+                    chartData[s] += (int)t.Amount;
+                else
+                    chartData.Add(s, (int)t.Amount);
+            }
+            ColumnChart1.DataContext = chartData;
+            PieChart1.DataContext = chartData;
         }
 
         private void ComboBox_DropDownClosed_1(object sender, EventArgs e)
@@ -82,6 +85,7 @@ namespace BankApp
                     t.Category = category;
                 }
                 _grid.Items.Refresh();
+                showColumnChart();
             }
         }
 
