@@ -19,17 +19,27 @@
             <ColumnDefinition Width="Auto"  />
             <ColumnDefinition />
         </Grid.ColumnDefinitions>
-        <DataGrid HorizontalContentAlignment="Stretch" Name="_grid" ItemsSource="{Binding Transaction}" AutoGenerateColumns="False"
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="30" />
+                <RowDefinition />                
+            </Grid.RowDefinitions>
+            <DockPanel>
+                <ComboBox DockPanel.Dock="Right" MinWidth="125" MaxWidth="225" VerticalContentAlignment="Center" HorizontalAlignment="Right" HorizontalContentAlignment="Right" Padding="0,0,8,0" ItemsSource="{Binding Source={StaticResource EnumDataProvider}, Mode=OneWay}" DropDownClosed="ComboBox_DropDownClosed_1">
+                </ComboBox>
+                <Label DockPanel.Dock="Left" HorizontalAlignment="Right" VerticalContentAlignment="Center" Content="Category: " />
+            </DockPanel>
+            <DataGrid Grid.Row="1" HorizontalContentAlignment="Stretch" Name="_grid" ItemsSource="{Binding Transaction}" AutoGenerateColumns="False"
           CanUserReorderColumns="True" CanUserResizeColumns="True" CanUserResizeRows="False" CanUserSortColumns="True" 
-          CanUserDeleteRows="False" CanUserAddRows="False" AlternationCount="2" Padding="4"
-          MouseUp="_grid_MouseUp_1" KeyUp="_grid_KeyUp_1">
-            <DataGrid.Columns>
-                <DataGridTextColumn Binding="{Binding Date}" Header="Date" IsReadOnly="True" />
-                <DataGridTextColumn Binding="{Binding Description}" Header="Info" IsReadOnly="True"/>
-                <DataGridTextColumn Binding="{Binding Amount}" Header="Amount" IsReadOnly="True"/>
-                <DataGridComboBoxColumn Header="Category" ItemsSource="{Binding Source={StaticResource EnumDataProvider}, Mode=OneWay}" SelectedValueBinding="{Binding Path=Role}" />
-            </DataGrid.Columns>
-        </DataGrid>
+          CanUserDeleteRows="False" CanUserAddRows="False" AlternationCount="2" Padding="4">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Binding="{Binding Date}" Header="Date" IsReadOnly="True" />
+                    <DataGridTextColumn Binding="{Binding Description}" Header="Info" IsReadOnly="True"/>
+                    <DataGridTextColumn Binding="{Binding Amount}" Header="Amount" IsReadOnly="True"/>
+                    <DataGridComboBoxColumn Header="Category" ItemsSource="{Binding Source={StaticResource EnumDataProvider}, Mode=OneWay}" SelectedValueBinding="{Binding Path=Category}" IsReadOnly="True"/>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Grid>
         <Grid Grid.Column="1" Name="_content">
             <my:Chart Height="262" Name="ColumnChart1" Title="Total Marks" Width="262" VerticalAlignment="Top">
                 <my:ColumnSeries DependentValuePath="Value" IndependentValuePath="Key" ItemsSource="{Binding}" IsSelectionEnabled="True"/>

@@ -28,12 +28,14 @@ namespace BankApp
     public class ViewTransaction
     {
         private Transaction _transaction;
-
         public string Description { get { return _transaction.Info; } }
         public string Date { get { return _transaction.Date; } }
         public double Amount { get { return _transaction.Amount; } }
-        public TransactionCategory Category { get { return (TransactionCategory)_transaction.Category; } set { _transaction.Category = (int)value; } }
-
+        public TransactionCategory Category 
+        { 
+            get { return (TransactionCategory)_transaction.Category; } 
+            set { _transaction.Category = (int)value; } 
+        }
 
         public ViewTransaction(Transaction t)
         {
@@ -46,7 +48,6 @@ namespace BankApp
     /// </summary>
     public partial class MainWindow : Window
     {
-
         private List<ViewTransaction> _transactions;
 
         public MainWindow()
@@ -64,7 +65,6 @@ namespace BankApp
             //foo.parseFile("../../_assets/export.csv", ref transactions);
             //foo.parseFile("../../_assets/export2.csv", ref transactions);
             _grid.ItemsSource = _transactions;
-
             showColumnChart();
         }
 
@@ -80,23 +80,18 @@ namespace BankApp
             PieChart1.DataContext = MyValue;
         }
 
-        private void _grid_MouseUp_1(object sender, MouseButtonEventArgs e)
+        private void ComboBox_DropDownClosed_1(object sender, EventArgs e)
         {
-            if (e.ChangedButton == MouseButton.Right)
+            if (_grid.SelectedItems.Count > 0)
             {
-                foreach (var t in _grid.SelectedItems)
+                var box = sender as ComboBox;
+                var category = (TransactionCategory)box.SelectedValue;
+                foreach (ViewTransaction t in _grid.SelectedItems)
                 {
-                    var tran = t as Transaction;
-                    tran.Category += 1;
+                    t.Category = category;
                 }
-                //_grid.ItemsSource = _transactions; //#TODO Fix
                 _grid.Items.Refresh();
             }
-        }
-
-        private void _grid_KeyUp_1(object sender, KeyEventArgs e)
-        {
-
         }
     }
 }
