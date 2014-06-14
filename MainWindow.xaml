@@ -45,7 +45,7 @@
             </DockPanel>
             <DataGrid Grid.Row="1" HorizontalContentAlignment="Stretch" Name="_grid" ItemsSource="{Binding Transaction}" AutoGenerateColumns="False"
           CanUserReorderColumns="True" CanUserResizeColumns="True" CanUserResizeRows="False" CanUserSortColumns="True" 
-          CanUserDeleteRows="False" CanUserAddRows="False" AlternationCount="2" Padding="4">
+          CanUserDeleteRows="False" CanUserAddRows="False" AlternationCount="2" Padding="4" KeyDown="_grid_key">
                 <DataGrid.Columns>
                     <DataGridTextColumn Binding="{Binding Date}" Header="Date" IsReadOnly="True" />
                     <DataGridTextColumn Binding="{Binding Description}" Header="Info" IsReadOnly="True"/>
@@ -55,9 +55,6 @@
             </DataGrid>
         </Grid>
         <Grid Grid.Column="1" Name="_content">
-            <my:Chart Height="262" Name="ColumnChart1" Title="Total Marks" Width="262" VerticalAlignment="Top">
-                <my:ColumnSeries DependentValuePath="Value" IndependentValuePath="Key" ItemsSource="{Binding}" IsSelectionEnabled="True"/>
-            </my:Chart>
             <my:Chart Name="PieChart1" Title="Total Marks" VerticalAlignment="Top" Margin="0,262,0,0" Height="262">
                 <my:PieSeries DependentValuePath="Value" IndependentValuePath="Key" ItemsSource="{Binding}" IsSelectionEnabled="True" />
             </my:Chart>
