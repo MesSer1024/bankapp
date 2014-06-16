@@ -50,6 +50,7 @@ namespace BankApp
     public partial class MainWindow : Window
     {
         private List<ViewTransaction> _transactions;
+        private const int ARBITARY_TIME_TO_WAIT_BEFORE_UPDATING_VIEW_ITEMS = 50;
 
         public MainWindow()
         {
@@ -87,7 +88,7 @@ namespace BankApp
                         Keyboard.Focus(cell);
                         cell.Focus();
                     }
-                }, 10);
+                }, ARBITARY_TIME_TO_WAIT_BEFORE_UPDATING_VIEW_ITEMS);
             }
             PieChart1.DataContext = chartData;
         }
