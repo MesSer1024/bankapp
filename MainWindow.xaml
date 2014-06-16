@@ -46,11 +46,20 @@
             <DataGrid Grid.Row="1" HorizontalContentAlignment="Stretch" Name="_grid" ItemsSource="{Binding Transaction}" AutoGenerateColumns="False"
           CanUserReorderColumns="True" CanUserResizeColumns="True" CanUserResizeRows="False" CanUserSortColumns="True" 
           CanUserDeleteRows="False" CanUserAddRows="False" AlternationCount="2" Padding="4" KeyDown="_grid_key">
-                <DataGrid.Columns>
+                    <DataGrid.RowStyle>
+                        <Style TargetType="DataGridRow">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding isIncome}" Value="true">
+                                    <Setter Property="Background" Value="Lime"></Setter>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DataGrid.RowStyle>
+                    <DataGrid.Columns>
                     <DataGridTextColumn Binding="{Binding Date}" Header="Date" IsReadOnly="True" />
                     <DataGridTextColumn Binding="{Binding Description}" Header="Info" IsReadOnly="True"/>
                     <DataGridTextColumn Binding="{Binding Amount}" Header="Amount" IsReadOnly="True"/>
-                    <DataGridComboBoxColumn Header="Category" ItemsSource="{Binding Source={StaticResource EnumDataProvider}, Mode=OneWay}" SelectedValueBinding="{Binding Path=Category}" IsReadOnly="True"/>
+                    <DataGridComboBoxColumn Header="Category" ItemsSource="{Binding Source={StaticResource EnumDataProvider}, Mode=OneWay}" SelectedValueBinding="{Binding Path=Category}" IsReadOnly="True" />
                 </DataGrid.Columns>
             </DataGrid>
         </Grid>

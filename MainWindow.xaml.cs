@@ -42,6 +42,8 @@ namespace BankApp
         {
             transaction = t;
         }
+
+        public bool isIncome { get { return transaction.Amount > 0; } }
     }
 
     /// <summary>
@@ -62,18 +64,13 @@ namespace BankApp
         private void refreshUIElements()
         {
             var chartData = new Dictionary<string, int>();
-            var incomes = new List<Transaction>();
             foreach (var t in _transactions)
             {
                 var s = Enum.GetName(typeof(TransactionCategory), t.Category);
-                if (t.Amount > 0) {
-                    incomes.Add(t.transaction);
-                } else {
-                    if (chartData.ContainsKey(s))
-                        chartData[s] += (int)t.Amount;
-                    else
-                        chartData.Add(s, (int)t.Amount);
-                }
+                if (chartData.ContainsKey(s))
+                    chartData[s] += (int)t.Amount;
+                else
+                    chartData.Add(s, (int)t.Amount);
             }
             var item = Keyboard.FocusedElement;
             var selIndex = _grid.SelectedIndex;
