@@ -31,6 +31,7 @@ namespace BankApp
         public Transaction transaction { get; private set; }
         public string Description { get { return transaction.Info; } }
         public string Date { get { return transaction.Date; } }
+        public DateTime DateObject { get { return _date; } }
         public double Amount { get { return transaction.Amount; } }
         public TransactionCategory Category 
         { 
@@ -41,8 +42,10 @@ namespace BankApp
         public ViewTransaction(Transaction t)
         {
             transaction = t;
+            _date = DateTime.Parse(t.Date);
         }
 
+        private DateTime _date;
         public bool isIncome { get { return transaction.Amount > 0; } }
     }
 
@@ -53,12 +56,64 @@ namespace BankApp
     {
         private List<ViewTransaction> _transactions;
         private const int ARBITARY_TIME_TO_WAIT_BEFORE_UPDATING_VIEW_ITEMS = 50;
+        private FilterHandler _filters;
 
         public MainWindow()
         {
             WpfUtils.MainDispatcher = this.Dispatcher;
             InitializeComponent();
             _transactions = new List<ViewTransaction>();
+            _filters = new FilterHandler(new Button[5] { _filter1, _filter2, _filter3, _filter4, _filter5 }, 4);
+        }
+
+        private class FilterHandler
+        {
+            private Button[] _buttons;
+            private int _selectedIndex;
+            private Brush _orgBrush;
+
+            public FilterHandler(Button[] buttons, int selectedIndex = 0)
+            {
+                _buttons = buttons;
+                _orgBrush = _buttons[0].Background.CloneCurrentValue();
+                buttons[0].Content = "1";
+                buttons[1].Content = "3";
+                buttons[2].Content = "6";
+                buttons[3].Content = "12";
+                buttons[4].Content = "All";
+                setMarked(selectedIndex);
+            }
+
+            internal int getMonths()
+            {
+                return _selectedIndex == 0 ? 1 :
+                    _selectedIndex == 1 ? 3 :
+                    _selectedIndex == 2 ? 6 :
+                    _selectedIndex == 3 ? 12 : 20000;
+            }
+
+            public void setMarked(string name)
+            {
+                for (int i = 0; i < _buttons.Length; i++)
+                {
+                    if (_buttons[i].Name == name)
+                    {
+                        setMarked(i);
+                        return;
+                    }
+                }
+                throw new Exception("Unable to find item with name: " + name);
+            }
+
+            public void setMarked(int selectedIndex)
+            {
+                if (_selectedIndex >= 0)
+                {
+                    _buttons[_selectedIndex].Background = _orgBrush;
+                }
+                _selectedIndex = selectedIndex;
+                _buttons[_selectedIndex].Background = Brushes.Yellow;
+            }
         }
 
         private void refreshUIElements()
@@ -74,7 +129,9 @@ namespace BankApp
             }
             var item = Keyboard.FocusedElement;
             var selIndex = _grid.SelectedIndex;
-            _grid.Items.Refresh();
+            var filterTime = DateTime.Now.AddMonths(0 - _filters.getMonths());
+            _grid.Items.Filter = (object t) => { return ((ViewTransaction)t).DateObject.CompareTo(filterTime) >= 0; };
+            //_grid.Items.Refresh();
             _grid.SelectedIndex = selIndex;
             if (selIndex >= 0) {
                 WpfUtils.toMainThread(() => {
@@ -179,6 +236,13 @@ namespace BankApp
                         break;
                 }
             }
+        }
+
+        private void onFilterButtonClick(object sender, RoutedEventArgs e)
+        {
+            string name = ((FrameworkElement)e.Source).Name;
+            _filters.setMarked(name);
+            refreshUIElements();
         }
     }
 }

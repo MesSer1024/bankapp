@@ -36,14 +36,32 @@
         </Grid.ColumnDefinitions>
         <Grid>
             <Grid.RowDefinitions>
+                <RowDefinition Height="40" />
                 <RowDefinition Height="30" />
                 <RowDefinition />                
             </Grid.RowDefinitions>
-            <DockPanel Background="Yellow">
+            <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="5,0,5,0">
+                    <StackPanel.Resources>
+                        <Style TargetType="Button" x:Key="btns">
+                            <Setter Property="MinWidth" Value="30" />
+                            <Setter Property="MaxWidth" Value="30" />
+                            <Setter Property="MinHeight" Value="30" />
+                            <Setter Property="MaxHeight" Value="30" />
+                            <Setter Property="Margin" Value="2,0,2,0" />
+                            <Setter Property="Padding" Value="2" />
+                        </Style> 
+                    </StackPanel.Resources>
+                    <Button Name="_filter1" Content="foo!" Style="{StaticResource ResourceKey=btns}" Click="onFilterButtonClick" />
+                    <Button Name="_filter2" Content="foo!" Style="{StaticResource ResourceKey=btns}" Click="onFilterButtonClick" />
+                    <Button Name="_filter3" Content="foo!" Style="{StaticResource ResourceKey=btns}" Click="onFilterButtonClick" />
+                    <Button Name="_filter4" Content="foo!" Style="{StaticResource ResourceKey=btns}" Click="onFilterButtonClick" />
+                    <Button Name="_filter5" Content="foo!" Style="{StaticResource ResourceKey=btns}" Click="onFilterButtonClick" />
+                </StackPanel>
+           <DockPanel Grid.Row="1" Background="Yellow">
                 <ComboBox DockPanel.Dock="Right" Margin="5" MinWidth="125" MaxWidth="225" VerticalContentAlignment="Center" HorizontalAlignment="Right" HorizontalContentAlignment="Right" Padding="0,0,8,0" ItemsSource="{Binding Source={StaticResource EnumDataProvider}, Mode=OneWay}" DropDownClosed="ComboBox_DropDownClosed_1" IsTabStop="False" />
                 <Label DockPanel.Dock="Left" Margin="0,0,5,0" HorizontalAlignment="Right" VerticalContentAlignment="Center" Content="Category: " />
             </DockPanel>
-            <DataGrid Grid.Row="1" HorizontalContentAlignment="Stretch" Name="_grid" ItemsSource="{Binding Transaction}" AutoGenerateColumns="False"
+            <DataGrid Grid.Row="2" HorizontalContentAlignment="Stretch" Name="_grid" ItemsSource="{Binding Transaction}" AutoGenerateColumns="False"
           CanUserReorderColumns="True" CanUserResizeColumns="True" CanUserResizeRows="False" CanUserSortColumns="True" 
           CanUserDeleteRows="False" CanUserAddRows="False" AlternationCount="2" Padding="4" KeyDown="_grid_key">
                     <DataGrid.RowStyle>
