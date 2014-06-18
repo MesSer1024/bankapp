@@ -82,7 +82,26 @@
             </DataGrid>
         </Grid>
         <Grid Grid.Column="1" Name="_content">
-            <my:Chart Name="PieChart1" Title="Total Marks" VerticalAlignment="Top" Margin="0,262,0,0" Height="262">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="135" />
+                    <RowDefinition Height="1*" />
+                </Grid.RowDefinitions>
+                <WrapPanel Orientation="Vertical" Name="_wrapPanel" Margin="0">
+                    <WrapPanel.Resources>
+                        <Style TargetType="Label" x:Key="foo">
+                            <Setter Property="Margin" Value="0" />
+                            <Setter Property="Padding" Value="10,5,100,5" />
+                        </Style>
+                    </WrapPanel.Resources>
+                    <Label Content="foo" Style="{StaticResource ResourceKey=foo}" />
+                    <Label Content="foo" Style="{StaticResource ResourceKey=foo}" />
+                    <Label Content="foo" Style="{StaticResource ResourceKey=foo}" />
+                    <Label Content="foo" Style="{StaticResource ResourceKey=foo}" />
+                    <Label Content="foo" Style="{StaticResource ResourceKey=foo}" />
+                    <Label Content="foo" Style="{StaticResource ResourceKey=foo}" />
+                    <Label Content="foo" Style="{StaticResource ResourceKey=foo}" />
+                </WrapPanel>
+                    <my:Chart Grid.Row="1" Name="PieChart1" Title="Total Marks" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" MinWidth="450" MinHeight="450">
                 <my:PieSeries DependentValuePath="Value" IndependentValuePath="Key" ItemsSource="{Binding}" IsSelectionEnabled="True" />
             </my:Chart>
         </Grid>

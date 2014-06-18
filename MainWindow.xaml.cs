@@ -208,7 +208,18 @@ namespace BankApp
             //foo.parseFile("../../_assets/export2.csv", ref transactions);
             //foo.Save(transactions);
             _grid.ItemsSource = _transactions;
+
+            string[] enumNames = Enum.GetNames(typeof(TransactionCategory));
+            int n = Math.Min(_wrapPanel.Children.Count, enumNames.Length);
+            for (int i = 0; i < n; ++i)
+            {
+                Label l = _wrapPanel.Children[i] as Label;
+                l.Content = String.Format("{0} = {1}", i, enumNames[i]);
+            }
+            _wrapPanel.Children.RemoveRange(n, _wrapPanel.Children.Count - n);
+
             refreshUIElements();
+
         }
 
         private void CommandBinding_Executed_3(object sender, ExecutedRoutedEventArgs e)
