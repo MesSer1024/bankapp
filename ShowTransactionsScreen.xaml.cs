@@ -22,16 +22,21 @@ namespace BankApp
     /// </summary>
     public partial class ShowTransactionsScreen : UserControl, IMessageListener
     {
-        private List<ViewTransaction> _transactions;
+        private List<ViewTransaction> _allTransactions;
         private const int ARBITARY_TIME_TO_WAIT_BEFORE_UPDATING_VIEW_ITEMS = 50;
         private FilterHandler _filters;
+        private bool _initialized;
 
         public ShowTransactionsScreen()
         {
             InitializeComponent();
             MessageManager.addListener(this);
-            _transactions = new List<ViewTransaction>();
-            _filters = new FilterHandler(new Button[5] { _filter1, _filter2, _filter3, _filter4, _filter5 }, 4);
+            _allTransactions = new List<ViewTransaction>();
+            _filters = new FilterHandler(new Button[5] { _filter1, _filter2, _filter3, _filter4, _filter5 });
+            _filters.setMarked(4);
+
+            _currentMonthSelector.SelectedIndex = DateTime.Now.Month - 1;
+            _initialized = true;
         }
 
         ~ShowTransactionsScreen()
@@ -45,7 +50,7 @@ namespace BankApp
             private int _selectedIndex;
             private Brush _orgBrush;
 
-            public FilterHandler(Button[] buttons, int selectedIndex = 0)
+            public FilterHandler(Button[] buttons)
             {
                 _buttons = buttons;
                 _orgBrush = _buttons[0].Background.CloneCurrentValue();
@@ -54,7 +59,7 @@ namespace BankApp
                 buttons[2].Content = "6";
                 buttons[3].Content = "12";
                 buttons[4].Content = "All";
-                setMarked(selectedIndex);
+                setMarked(0);
             }
 
             internal int getMonths()
@@ -89,34 +94,58 @@ namespace BankApp
             }
         }
 
+        private DateTime getFilteredEndTime() {
+            var now = DateTime.Now;
+            var filtered = new DateTime(now.Year, _currentMonthSelector.SelectedIndex + 2, 1).AddDays(-1);//remove one day to get the last day of previous month which is an extra month forward due to selectedIndex + 2
+            return filtered;
+        }
+
+        private DateTime getFilteredStartTime() {
+            var end = getFilteredEndTime();
+            return end.AddMonths(0 - _filters.getMonths()).AddDays(1);
+        }
+
         private void refreshUIElements()
         {
+            //find active items given current filter settings
+            var filterStartTime = getFilteredStartTime();
+            var filterEndTime = getFilteredEndTime();
+            var subset = _allTransactions.Where(a => { return a.DateObject >= filterStartTime && a.DateObject <= filterEndTime; });
+
+            //populate each transaction category excluding incomes
+            var totalIncome = 0;
+            var totalExpense = 0;
             var chartData = new Dictionary<string, int>();
-            foreach (var t in _transactions)
+            foreach (var t in subset)
             {
+                if (t.Amount > 0) {
+                    totalIncome += (int)t.Amount;
+                    continue;
+                } else {
+                    totalExpense += (int)t.Amount;
+                }
+
                 var s = Enum.GetName(typeof(TransactionCategory), t.Category);
                 if (chartData.ContainsKey(s))
                     chartData[s] += (int)t.Amount;
                 else
                     chartData.Add(s, (int)t.Amount);
             }
-            var item = Keyboard.FocusedElement;
             var selIndex = _grid.SelectedIndex;
-            var filterTime = DateTime.Now.AddMonths(0 - _filters.getMonths());
-            _grid.Items.Filter = (object t) => { return ((ViewTransaction)t).DateObject.CompareTo(filterTime) >= 0; };
-            //_grid.Items.Refresh();
+            _grid.ItemsSource = subset;
             _grid.SelectedIndex = selIndex;
-            if (selIndex >= 0) {
-                WpfUtils.toMainThread(() => {
-                    var row = _grid.ItemContainerGenerator.ContainerFromIndex(selIndex) as DataGridRow;
-                    if (row != null) {
-                        var presenter = GetVisualChild<DataGridCellsPresenter>(row);
-                        var cell = presenter.ItemContainerGenerator.ContainerFromIndex(3) as DataGridCell;
-                        Keyboard.Focus(cell);
-                        cell.Focus();
-                    }
-                }, ARBITARY_TIME_TO_WAIT_BEFORE_UPDATING_VIEW_ITEMS);
-            }
+            selIndex = Math.Max(0, Math.Min(selIndex, subset.Count()));
+            WpfUtils.toMainThread(() => {
+                _totalText.Content = "Total income in time span: \nTotal expenses in time span: \nSubTotal:";
+                _totalAmount.Content = String.Format("{0}\n{1}\n{2}", totalIncome, -totalExpense, (totalIncome + totalExpense));
+                var row = _grid.ItemContainerGenerator.ContainerFromIndex(selIndex) as DataGridRow;
+                if (row != null) {
+                    var presenter = GetVisualChild<DataGridCellsPresenter>(row);
+                    var cell = presenter.ItemContainerGenerator.ContainerFromIndex(3) as DataGridCell;
+                    Keyboard.Focus(cell);
+                    cell.Focus();
+                }
+            }, ARBITARY_TIME_TO_WAIT_BEFORE_UPDATING_VIEW_ITEMS);
             PieChart1.DataContext = chartData;
         }
 
@@ -158,7 +187,7 @@ namespace BankApp
         private void onSave()
         {
             var transactions = new List<Transaction>();
-            foreach (var t in _transactions)
+            foreach (var t in _allTransactions)
             {
                 transactions.Add(t.transaction);
             }
@@ -171,7 +200,7 @@ namespace BankApp
             try {
                 var transactions = foo.Load();
                 foreach (var t in transactions) {
-                    _transactions.Add(new ViewTransaction(t));
+                    _allTransactions.Add(new ViewTransaction(t));
                 }
             } catch (Exception ex) {
                 MessageBox.Show(ex.ToString());
@@ -180,7 +209,6 @@ namespace BankApp
             //foo.parseFile("../../_assets/export.csv", ref transactions);
             //foo.parseFile("../../_assets/export2.csv", ref transactions);
             //foo.Save(transactions);
-            _grid.ItemsSource = _transactions;
 
             string[] enumNames = Enum.GetNames(typeof(TransactionCategory));
             int n = Math.Min(_wrapPanel.Children.Count, enumNames.Length);
@@ -244,9 +272,15 @@ namespace BankApp
                 var msg = message as InsertTransactionsMessage;
                 foreach (var t in msg.Transactions)
                 {
-                    _transactions.Add(new ViewTransaction(t));
+                    _allTransactions.Add(new ViewTransaction(t));
                 }
+                refreshUIElements();
             }
+        }
+
+        public void foobar(object sender, SelectionChangedEventArgs e) {
+            if(_initialized)
+                refreshUIElements();
         }
     }
 }

@@ -24,12 +24,12 @@
         </Grid.ColumnDefinitions>
         <Grid>
             <Grid.RowDefinitions>
-                <RowDefinition Height="40" />
+                <RowDefinition Height="80" />
                 <RowDefinition Height="30" />
                 <RowDefinition />
             </Grid.RowDefinitions>
-            <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="5,0,5,0">
-                <StackPanel.Resources>
+            <Grid Grid.Row="0" Margin="5,0,5,0">
+                <Grid.Resources>
                     <Style TargetType="Button" x:Key="btns">
                         <Setter Property="MinWidth" Value="30" />
                         <Setter Property="MaxWidth" Value="30" />
@@ -38,13 +38,33 @@
                         <Setter Property="Margin" Value="2,0,2,0" />
                         <Setter Property="Padding" Value="2" />
                     </Style>
-                </StackPanel.Resources>
-                <Button Name="_filter1" Content="foo!" Style="{StaticResource ResourceKey=btns}" Click="onFilterButtonClick" />
-                <Button Name="_filter2" Content="foo!" Style="{StaticResource ResourceKey=btns}" Click="onFilterButtonClick" />
-                <Button Name="_filter3" Content="foo!" Style="{StaticResource ResourceKey=btns}" Click="onFilterButtonClick" />
-                <Button Name="_filter4" Content="foo!" Style="{StaticResource ResourceKey=btns}" Click="onFilterButtonClick" />
-                <Button Name="_filter5" Content="foo!" Style="{StaticResource ResourceKey=btns}" Click="onFilterButtonClick" />
-            </StackPanel>
+                </Grid.Resources>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="20" />
+                    <RowDefinition Height="40" />
+                </Grid.RowDefinitions>
+                <ComboBox VerticalContentAlignment="Center" HorizontalContentAlignment="Right" Name="_currentMonthSelector" SelectionChanged="foobar">
+                    <ComboBoxItem Content="January" Selector.IsSelected="True" />
+                    <ComboBoxItem Content="February" />
+                    <ComboBoxItem Content="March" />
+                    <ComboBoxItem Content="April" />
+                    <ComboBoxItem Content="May" />
+                    <ComboBoxItem Content="June" />
+                    <ComboBoxItem Content="July" />
+                    <ComboBoxItem Content="August" />
+                    <ComboBoxItem Content="September" />
+                    <ComboBoxItem Content="October" />
+                    <ComboBoxItem Content="November" />
+                    <ComboBoxItem Content="December" />
+                </ComboBox>
+                <StackPanel Orientation="Horizontal" Grid.Row="1">
+                    <Button Name="_filter1" Content="foo!" Style="{StaticResource ResourceKey=btns}" Click="onFilterButtonClick" />
+                    <Button Name="_filter2" Content="foo!" Style="{StaticResource ResourceKey=btns}" Click="onFilterButtonClick" />
+                    <Button Name="_filter3" Content="foo!" Style="{StaticResource ResourceKey=btns}" Click="onFilterButtonClick" />
+                    <Button Name="_filter4" Content="foo!" Style="{StaticResource ResourceKey=btns}" Click="onFilterButtonClick" />
+                    <Button Name="_filter5" Content="foo!" Style="{StaticResource ResourceKey=btns}" Click="onFilterButtonClick" />
+                </StackPanel>
+            </Grid>
             <DockPanel Grid.Row="1" Background="Yellow">
                 <ComboBox DockPanel.Dock="Right" Margin="5" MinWidth="125" MaxWidth="225" VerticalContentAlignment="Center" HorizontalAlignment="Right" HorizontalContentAlignment="Right" Padding="0,0,8,0" ItemsSource="{Binding Source={StaticResource EnumDataProvider}, Mode=OneWay}" DropDownClosed="ComboBox_DropDownClosed_1" IsTabStop="False" />
                 <Label DockPanel.Dock="Left" Margin="0,0,5,0" HorizontalAlignment="Right" VerticalContentAlignment="Center" Content="Category: " />
@@ -72,6 +92,7 @@
         <Grid Grid.Column="1" Name="_content">
             <Grid.RowDefinitions>
                 <RowDefinition Height="135" />
+                <RowDefinition Height="75" />
                 <RowDefinition Height="1*" />
             </Grid.RowDefinitions>
             <WrapPanel Orientation="Vertical" Name="_wrapPanel" Margin="0">
@@ -89,7 +110,17 @@
                 <Label Content="foo" Style="{StaticResource ResourceKey=foo}" />
                 <Label Content="foo" Style="{StaticResource ResourceKey=foo}" />
             </WrapPanel>
-            <my:Chart Grid.Row="1" Name="PieChart1" Title="Total Marks" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" MinWidth="450" MinHeight="450">
+            <Grid Grid.Row="1" Background="Yellow">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="200" />
+                    <ColumnDefinition Width="200" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Label Grid.Column="1" Name="_totalText" Content="Total Income:\nTotal Expenses:" VerticalContentAlignment="Center" HorizontalContentAlignment="Right" FontWeight="Bold" />
+                <Label Grid.Column="2" Name="_totalAmount" Content="100\n100" VerticalContentAlignment="Center" HorizontalContentAlignment="Left" FontWeight="Bold" />
+            </Grid>
+            <my:Chart Grid.Row="2" Name="PieChart1" Title="Total Marks" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" MinWidth="450" MinHeight="450">
                 <my:PieSeries DependentValuePath="Value" IndependentValuePath="Key" ItemsSource="{Binding}" IsSelectionEnabled="True" />
             </my:Chart>
         </Grid>

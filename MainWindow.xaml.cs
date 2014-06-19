@@ -19,7 +19,7 @@ namespace BankApp
 {
     public enum TransactionCategory
     {
-        Unknown,
+        Undefined,
         House,
         Food,
         Transport,
@@ -35,7 +35,7 @@ namespace BankApp
         public double Amount { get { return transaction.Amount; } }
         public TransactionCategory Category 
         { 
-            get { return (TransactionCategory)transaction.Category; } 
+            get { return transaction.Amount > 0 ? TransactionCategory.Undefined : (TransactionCategory)transaction.Category; } 
             set { transaction.Category = (int)value; } 
         }
 
