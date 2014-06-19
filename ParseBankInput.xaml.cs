@@ -52,7 +52,6 @@ namespace BankApp
             {
                 MessageManager.queueMessage(new InsertTransactionsMessage(transactions.ToArray()));
                 MessageManager.queueMessage(new CloseOverlayMessage() { Overlay = this });
-                MessageBox.Show(String.Format("Added {0} items to transaction database", transactions.Count));
             }
         }
 

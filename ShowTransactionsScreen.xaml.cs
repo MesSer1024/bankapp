@@ -96,13 +96,14 @@ namespace BankApp
 
         private DateTime getFilteredEndTime() {
             var now = DateTime.Now;
-            var filtered = new DateTime(now.Year, _currentMonthSelector.SelectedIndex + 2, 1).AddDays(-1);//remove one day to get the last day of previous month which is an extra month forward due to selectedIndex + 2
+            var filtered = new DateTime(now.Year, now.Month, 1).AddMonths(2).AddDays(-1);//remove one day to get the last day of previous month which is an extra month forward due to selectedIndex + 2
             return filtered;
         }
 
         private DateTime getFilteredStartTime() {
             var end = getFilteredEndTime();
-            return end.AddMonths(0 - _filters.getMonths()).AddDays(1);
+            var start = new DateTime(end.Year, end.Month, 1);
+            return start.AddMonths(0 - _filters.getMonths());
         }
 
         private void refreshUIElements()
@@ -270,10 +271,13 @@ namespace BankApp
             else if (message is InsertTransactionsMessage)
             {
                 var msg = message as InsertTransactionsMessage;
+                var orgCount = _allTransactions.Count;
                 foreach (var t in msg.Transactions)
                 {
-                    _allTransactions.Add(new ViewTransaction(t));
+                    if(_allTransactions.TrueForAll( a => a.Description != t.Info && a.Date != t.Date && a.Amount != t.Amount))
+                        _allTransactions.Add(new ViewTransaction(t));
                 }
+                MessageBox.Show(String.Format("Parsed {0} items and added {1} to database as unique entries", msg.Transactions.Length, _allTransactions.Count - orgCount));
                 refreshUIElements();
             }
         }

@@ -6,7 +6,7 @@
         xmlns:my="clr-namespace:System.Windows.Controls.DataVisualization.Charting;assembly=System.Windows.Controls.DataVisualization.Toolkit"
         Title="MainWindow" Height="800" Width="1440">
     <Window.CommandBindings>
-        <CommandBinding Command="Save" Executed="onSave"></CommandBinding>
+        <CommandBinding Command="Save" Executed="onSave" />
         <CommandBinding Command="Open" Executed="onLoad" />
     </Window.CommandBindings>
     <Window.InputBindings>
