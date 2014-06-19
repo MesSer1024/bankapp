@@ -24,13 +24,44 @@ namespace BankAppLib
         }
     }
 
+    public class ErrorHandler
+    {
+        private List<ParseError> _errors;
+        public ErrorHandler()
+        {
+            _errors = new List<ParseError>();
+        }
+
+        public void add(ParseError error)
+        {
+            _errors.Add(error);
+        }
+
+        public void clear()
+        {
+            _errors.Clear();
+        }
+
+        public List<ParseError> getParseErrors()
+        {
+            return _errors;
+        }
+    }
+
+    public class ParseError
+    {
+        public string SourceLine { get; set; }
+        public int LineNumber { get; set; }
+        public string Error { get; set; }
+    }
+
     public class BankLib
     {
-        private TextWriter _output;
+        private ErrorHandler _errorHandler;
 
-        public BankLib(TextWriter errorStream)
+        public BankLib(ErrorHandler errorHandler)
         {
-            _output = errorStream;
+            _errorHandler = errorHandler;
         }
 
         private class SaveDataState
@@ -39,43 +70,49 @@ namespace BankAppLib
             public List<Transaction> Transactions { get; set; }
         }
 
-        public void parseFile(string path, ref List<Transaction> transactions)
+        public void parseTransactions(string[] lines, ref List<Transaction> transactions)
         {
-            var file = new FileInfo(path);
-            Debug.Assert(file.Exists);
             var floatInfo = new NumberFormatInfo();
             floatInfo.NegativeSign = "-";
             floatInfo.CurrencyDecimalSeparator = ",";
             floatInfo.NumberGroupSeparator = ".";
+            int count = 0;
 
-            var lines = File.ReadLines(file.FullName);
-            var sb = new StringBuilder();
             foreach (var s in lines)
             {
+                count++;
+
+                //sanity check
                 if (String.IsNullOrEmpty(s))
                     continue;
                 var parts = s.Split(',').ToArray();
                 var foo = parts.ToList();
                 if (parts.Length < 5 || parts.Length > 10)
                 {
-                    sb.AppendLine("Failed parsing line: " + s);
+                    if (_errorHandler != null)
+                        _errorHandler.add(new ParseError() { Error = "Splitting line on ',' resulted in too many or too few parts", LineNumber = count, SourceLine = s });
                     continue;
                 }
 
+                //remove special case lines [every time a field has a ',' in it, the line starts with "-character]
                 if(parts[1].StartsWith("\"")) {
                     foo[1] += " " + foo[2];
                     foo.RemoveAt(2);
                     parts = foo.ToArray();
                 }
+
                 var t = new Transaction() { Date = parts[0], Info = parts[1] };
+                
+                //create line which only contains information related to money part of the transaction [create string and remove everything else]
                 var cnt = parts[0].Length + parts[1].Length + parts[2].Length + 3;
-                var line = s.Substring(cnt);
+                var moneyLine = s.Substring(cnt);
                 int amt = 0;
-                line = line.Replace("\"", "");
-                parts = line.Split(',');
+                moneyLine = moneyLine.Replace("\"", "");
+                parts = moneyLine.Split(',');
                 if (parts.Length < 2 || parts.Length > 4)
                 {
-                    sb.AppendLine("Failed parsing amount parts: " + s);
+                    if(_errorHandler != null)
+                        _errorHandler.add(new ParseError() { LineNumber = count, SourceLine = s, Error = "Sanity check on part of line containing transaction amount were wrong, line=" + moneyLine });
                     continue;
                 }
 
@@ -85,12 +122,13 @@ namespace BankAppLib
                 }
                 else
                 {
-                    sb.AppendLine("Failed parsing amount: " + s);
+                    if (_errorHandler != null)
+                        _errorHandler.add(new ParseError() { LineNumber = count, SourceLine = s, Error = String.Format("Unable to convert {0} to a number", parts[0]) });
                     continue;
                 }
                 transactions.Add(t);
             }
-            _output.WriteLine(sb.ToString());
+            
         }
 
         public void Save(List<Transaction> transactions)

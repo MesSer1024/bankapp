@@ -5,15 +5,6 @@
         xmlns:System="clr-namespace:System;assembly=mscorlib"
         xmlns:my="clr-namespace:System.Windows.Controls.DataVisualization.Charting;assembly=System.Windows.Controls.DataVisualization.Toolkit"
         Title="MainWindow" Height="800" Width="1440">
-    <Window.Resources>
-        <ObjectDataProvider x:Key="EnumDataProvider" 
-                        MethodName="GetValues" 
-                        ObjectType="{x:Type System:Enum}">
-            <ObjectDataProvider.MethodParameters>
-                <x:Type TypeName="local:TransactionCategory"/>
-            </ObjectDataProvider.MethodParameters>
-        </ObjectDataProvider>
-    </Window.Resources>
     <Window.CommandBindings>
         <CommandBinding Command="Save" Executed="onSave"></CommandBinding>
         <CommandBinding Command="Open" Executed="onLoad" />
@@ -27,85 +18,9 @@
             <MenuItem Header="File" IsTabStop="False">
                 <MenuItem Header="Save" Command="Save" />
                 <MenuItem Header="Load" Command="Open" />
+                <MenuItem Header="Add to DB" Click="onAddToDatabase" />
             </MenuItem>
         </Menu>
-    <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto"  />
-            <ColumnDefinition />
-        </Grid.ColumnDefinitions>
-        <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="40" />
-                <RowDefinition Height="30" />
-                <RowDefinition />                
-            </Grid.RowDefinitions>
-            <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="5,0,5,0">
-                    <StackPanel.Resources>
-                        <Style TargetType="Button" x:Key="btns">
-                            <Setter Property="MinWidth" Value="30" />
-                            <Setter Property="MaxWidth" Value="30" />
-                            <Setter Property="MinHeight" Value="30" />
-                            <Setter Property="MaxHeight" Value="30" />
-                            <Setter Property="Margin" Value="2,0,2,0" />
-                            <Setter Property="Padding" Value="2" />
-                        </Style> 
-                    </StackPanel.Resources>
-                    <Button Name="_filter1" Content="foo!" Style="{StaticResource ResourceKey=btns}" Click="onFilterButtonClick" />
-                    <Button Name="_filter2" Content="foo!" Style="{StaticResource ResourceKey=btns}" Click="onFilterButtonClick" />
-                    <Button Name="_filter3" Content="foo!" Style="{StaticResource ResourceKey=btns}" Click="onFilterButtonClick" />
-                    <Button Name="_filter4" Content="foo!" Style="{StaticResource ResourceKey=btns}" Click="onFilterButtonClick" />
-                    <Button Name="_filter5" Content="foo!" Style="{StaticResource ResourceKey=btns}" Click="onFilterButtonClick" />
-                </StackPanel>
-           <DockPanel Grid.Row="1" Background="Yellow">
-                <ComboBox DockPanel.Dock="Right" Margin="5" MinWidth="125" MaxWidth="225" VerticalContentAlignment="Center" HorizontalAlignment="Right" HorizontalContentAlignment="Right" Padding="0,0,8,0" ItemsSource="{Binding Source={StaticResource EnumDataProvider}, Mode=OneWay}" DropDownClosed="ComboBox_DropDownClosed_1" IsTabStop="False" />
-                <Label DockPanel.Dock="Left" Margin="0,0,5,0" HorizontalAlignment="Right" VerticalContentAlignment="Center" Content="Category: " />
-            </DockPanel>
-            <DataGrid Grid.Row="2" HorizontalContentAlignment="Stretch" Name="_grid" ItemsSource="{Binding Transaction}" AutoGenerateColumns="False"
-          CanUserReorderColumns="True" CanUserResizeColumns="True" CanUserResizeRows="False" CanUserSortColumns="True" 
-          CanUserDeleteRows="False" CanUserAddRows="False" AlternationCount="2" Padding="4" KeyDown="_grid_key">
-                    <DataGrid.RowStyle>
-                        <Style TargetType="DataGridRow">
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding isIncome}" Value="true">
-                                    <Setter Property="Background" Value="Lime"></Setter>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </DataGrid.RowStyle>
-                    <DataGrid.Columns>
-                    <DataGridTextColumn Binding="{Binding Date}" Header="Date" IsReadOnly="True" />
-                    <DataGridTextColumn Binding="{Binding Description}" Header="Info" IsReadOnly="True"/>
-                    <DataGridTextColumn Binding="{Binding Amount}" Header="Amount" IsReadOnly="True"/>
-                    <DataGridComboBoxColumn Header="Category" ItemsSource="{Binding Source={StaticResource EnumDataProvider}, Mode=OneWay}" SelectedValueBinding="{Binding Path=Category}" IsReadOnly="True" />
-                </DataGrid.Columns>
-            </DataGrid>
-        </Grid>
-        <Grid Grid.Column="1" Name="_content">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="135" />
-                    <RowDefinition Height="1*" />
-                </Grid.RowDefinitions>
-                <WrapPanel Orientation="Vertical" Name="_wrapPanel" Margin="0">
-                    <WrapPanel.Resources>
-                        <Style TargetType="Label" x:Key="foo">
-                            <Setter Property="Margin" Value="0" />
-                            <Setter Property="Padding" Value="10,5,100,5" />
-                        </Style>
-                    </WrapPanel.Resources>
-                    <Label Content="foo" Style="{StaticResource ResourceKey=foo}" />
-                    <Label Content="foo" Style="{StaticResource ResourceKey=foo}" />
-                    <Label Content="foo" Style="{StaticResource ResourceKey=foo}" />
-                    <Label Content="foo" Style="{StaticResource ResourceKey=foo}" />
-                    <Label Content="foo" Style="{StaticResource ResourceKey=foo}" />
-                    <Label Content="foo" Style="{StaticResource ResourceKey=foo}" />
-                    <Label Content="foo" Style="{StaticResource ResourceKey=foo}" />
-                </WrapPanel>
-                    <my:Chart Grid.Row="1" Name="PieChart1" Title="Total Marks" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" MinWidth="450" MinHeight="450">
-                <my:PieSeries DependentValuePath="Value" IndependentValuePath="Key" ItemsSource="{Binding}" IsSelectionEnabled="True" />
-            </my:Chart>
-        </Grid>
-        <!--<ListBox Name="_items" />-->
-    </Grid>
+        <Grid Name="_content" />
     </DockPanel>
 </Window>
