@@ -95,15 +95,17 @@ namespace BankApp
         }
 
         private DateTime getFilteredEndTime() {
-            var now = DateTime.Now;
-            var filtered = new DateTime(now.Year, now.Month, 1).AddMonths(2).AddDays(-1);//remove one day to get the last day of previous month which is an extra month forward due to selectedIndex + 2
+            //basically current year and then month depending on month in drop-down
+            var filtered = new DateTime(DateTime.Now.Year, _currentMonthSelector.SelectedIndex + 1, 1);
+            filtered = filtered.AddMonths(1).AddDays(-1); //getting to last day of current month
             return filtered;
         }
 
         private DateTime getFilteredStartTime() {
+            //basically we want to set start time depending on x months earlier than end time
             var end = getFilteredEndTime();
-            var start = new DateTime(end.Year, end.Month, 1);
-            return start.AddMonths(0 - _filters.getMonths());
+            var start = end.AddMonths(0 - _filters.getMonths()).AddDays(7); //cheating by adding enough days to get into next month... issue with 27th of february - 1 month = 27th of january
+            return new DateTime(start.Year, start.Month, 1);
         }
 
         private void refreshUIElements()
