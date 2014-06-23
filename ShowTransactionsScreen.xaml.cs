@@ -33,7 +33,7 @@ namespace BankApp
             MessageManager.addListener(this);
             _allTransactions = new List<ViewTransaction>();
             _filters = new FilterHandler(new Button[5] { _filter1, _filter2, _filter3, _filter4, _filter5 });
-            _filters.setMarked(4);
+            _filters.setMarked(0);
 
             _currentMonthSelector.SelectedIndex = DateTime.Now.Month - 1;
             _initialized = true;
@@ -170,14 +170,26 @@ namespace BankApp
 
         private void ComboBox_DropDownClosed_1(object sender, EventArgs e)
         {
-            if (_grid.SelectedItems.Count > 0)
+            var box = sender as ComboBox;
+            if (box.SelectedValue == null)
+                return;
+            var category = (TransactionCategory)box.SelectedValue;
+            setItemCategoryFilter(category);
+        }
+
+        private void setItemCategoryFilter(TransactionCategory c)
+        {
+            if (c == TransactionCategory.ALL)
             {
-                var box = sender as ComboBox;
-                if (box.SelectedValue == null)
-                    return;
-                var category = (TransactionCategory)box.SelectedValue;
-                setCategoryForSelectedItems(category);
+                _grid.Items.Filter = null;
+                return;
             }
+
+            _grid.Items.Filter = (a) =>
+            {
+                var item = a as ViewTransaction;
+                return item.Category == c;
+            };
         }
 
         private void setCategoryForSelectedItems(TransactionCategory category) {

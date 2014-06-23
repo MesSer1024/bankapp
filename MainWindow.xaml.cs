@@ -24,6 +24,7 @@ namespace BankApp
         Food,
         Transport,
         Other,
+        ALL,
     }
 
     public class ViewTransaction
