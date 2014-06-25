@@ -3,10 +3,10 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+            xmlns:local="clr-namespace:BankApp"
             xmlns:System="clr-namespace:System;assembly=mscorlib"
             xmlns:my="clr-namespace:System.Windows.Controls.DataVisualization.Charting;assembly=System.Windows.Controls.DataVisualization.Toolkit"
             xmlns:tk="clr-namespace:System.Windows.Controls.DataVisualization;assembly=System.Windows.Controls.DataVisualization.Toolkit"
-                         xmlns:local="clr-namespace:BankApp"
              mc:Ignorable="d" 
              d:DesignHeight="600" d:DesignWidth="1200">
     <UserControl.Resources>
@@ -46,7 +46,7 @@
                 </Grid.RowDefinitions>
                 <Label Content="Filters:" FontWeight="Bold" />
                 <DockPanel Grid.Row="1">
-                    <Label Content="StartMonth:" />
+                    <Label Content="StartDate:" />
                     <ComboBox VerticalContentAlignment="Center" HorizontalAlignment="Right" HorizontalContentAlignment="Right" Name="_currentMonthSelector" SelectionChanged="foobar" MaxWidth="175" MinWidth="175">
                         <ComboBoxItem Content="January" Selector.IsSelected="True" />
                         <ComboBoxItem Content="February" />
@@ -61,6 +61,7 @@
                         <ComboBoxItem Content="November" />
                         <ComboBoxItem Content="December" />
                     </ComboBox>
+                    <TextBox Name="_year"  Text="2014" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Width="80" PreviewTextInput="NumberValidationTextBox" LostKeyboardFocus="onYearChanged" PreviewKeyUp="previewKeyUp" />
                 </DockPanel>
                 <DockPanel Grid.Row="2">
                     <Grid Margin="0" Background="LightGray">

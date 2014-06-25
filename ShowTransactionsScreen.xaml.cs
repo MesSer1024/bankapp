@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -28,6 +29,7 @@ namespace BankApp
         private FilterHandler _filters;
         private bool _initialized;
         private TransactionCategory _lastSeriesFilter;
+        private int _lastYear;
 
         public ShowTransactionsScreen()
         {
@@ -39,6 +41,8 @@ namespace BankApp
 
             _currentMonthSelector.SelectedIndex = DateTime.Now.Month - 1;
             _initialized = true;
+            _lastYear = DateTime.Now.Year;
+            _year.Text = _lastYear.ToString();
         }
 
         ~ShowTransactionsScreen()
@@ -98,7 +102,8 @@ namespace BankApp
 
         private DateTime getFilteredEndTime() {
             //basically current year and then month depending on month in drop-down
-            var filtered = new DateTime(DateTime.Now.Year, _currentMonthSelector.SelectedIndex + 1, 1);
+            var year = int.Parse(_year.Text);
+            var filtered = new DateTime(year, _currentMonthSelector.SelectedIndex + 1, 1);
             filtered = filtered.AddMonths(1).AddDays(-1); //getting to last day of current month
             return filtered;
         }
@@ -110,6 +115,11 @@ namespace BankApp
             return new DateTime(start.Year, start.Month, 1);
         }
 
+        private void NumberValidationTextBox(object sender, TextCompositionEventArgs e)
+        {
+            Regex regex = new Regex("[^0-9]+");
+            e.Handled = regex.IsMatch(e.Text);
+        }
         private void refreshUIElements()
         {
             //find active items given current filter settings
@@ -252,10 +262,23 @@ namespace BankApp
             var foo = new BankLib(null);
             try {
                 var transactions = foo.Load();
-                foreach (var t in transactions) {
-                    _allTransactions.Add(new ViewTransaction(t));
+                foreach (var t in transactions)
+                {
+                    bool add = true;
+                    foreach (var a in _allTransactions)
+                    {
+                        if (a.Description == t.Info && a.Date == t.Date && a.Amount == t.Amount)
+                        {
+                            add = false;
+                            break;
+                        }
+                    }
+                    if (add)
+                        _allTransactions.Add(new ViewTransaction(t));
                 }
-            } catch (Exception ex) {
+            }
+            catch (Exception ex)
+            {
                 MessageBox.Show(ex.ToString());
             }
             //var transactions = new List<Transaction>();
@@ -282,7 +305,7 @@ namespace BankApp
         }
 
         private void _grid_key(object sender, KeyEventArgs e) {
-            if (Keyboard.IsKeyDown(Key.LeftCtrl) && e.IsRepeat == false) {
+            if (e.Key != Key.LeftCtrl && Keyboard.IsKeyDown(Key.LeftCtrl) && e.IsRepeat == false) {
                 switch (e.Key) {
                     case Key.D0:
                         setCategoryForSelectedItems((TransactionCategory)0);
@@ -298,6 +321,30 @@ namespace BankApp
                         break;
                     case Key.D4:
                         setCategoryForSelectedItems((TransactionCategory)4);
+                        break;
+                }
+            }
+            else if (e.Key != Key.LeftAlt && Keyboard.IsKeyDown(Key.LeftAlt) && e.IsRepeat == false)
+            {
+                switch (e.SystemKey)
+                {
+                    case Key.Left:
+                        {
+                            var old = _currentMonthSelector.SelectedIndex;
+                            _currentMonthSelector.SelectedIndex = (_currentMonthSelector.SelectedIndex + 11) % 12;
+                            if (_currentMonthSelector.SelectedIndex > old)
+                                _year.Text = (int.Parse(_year.Text) - 1).ToString();
+                            refreshUIElements();
+                        }
+                        break;
+                    case Key.Right:
+                        {
+                            var old = _currentMonthSelector.SelectedIndex;
+                            _currentMonthSelector.SelectedIndex = (_currentMonthSelector.SelectedIndex + 13) % 12;
+                            if (_currentMonthSelector.SelectedIndex < old)
+                                _year.Text = (int.Parse(_year.Text) + 1).ToString();
+                            refreshUIElements();
+                        }
                         break;
                 }
             }
@@ -326,7 +373,16 @@ namespace BankApp
                 var orgCount = _allTransactions.Count;
                 foreach (var t in msg.Transactions)
                 {
-                    if(_allTransactions.TrueForAll( a => a.Description != t.Info && a.Date != t.Date && a.Amount != t.Amount))
+                    bool add = true;
+                    foreach (var a in _allTransactions)
+                    {
+                        if (a.Description == t.Info && a.Date == t.Date && a.Amount == t.Amount)
+                        {
+                            add = false;
+                            break;
+                        }
+                    }
+                    if (add)
                         _allTransactions.Add(new ViewTransaction(t));
                 }
                 MessageBox.Show(String.Format("Parsed {0} items and added {1} to database as unique entries", msg.Transactions.Length, _allTransactions.Count - orgCount));
@@ -337,6 +393,22 @@ namespace BankApp
         public void foobar(object sender, SelectionChangedEventArgs e) {
             if(_initialized)
                 refreshUIElements();
+        }
+
+        private void onYearChanged(object sender, KeyboardFocusChangedEventArgs e)
+        {
+            var currYear = int.Parse(_year.Text);
+            if(_lastYear != currYear) {
+                refreshUIElements();
+            }
+        }
+
+        private void previewKeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                Keyboard.Focus(_grid);
+            }
         }
     }
 }
