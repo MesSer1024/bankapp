@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.DataVisualization.Charting;
 using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Documents;
@@ -26,6 +27,7 @@ namespace BankApp
         private const int ARBITARY_TIME_TO_WAIT_BEFORE_UPDATING_VIEW_ITEMS = 50;
         private FilterHandler _filters;
         private bool _initialized;
+        private TransactionCategory _lastSeriesFilter;
 
         public ShowTransactionsScreen()
         {
@@ -149,7 +151,42 @@ namespace BankApp
                     cell.Focus();
                 }
             }, ARBITARY_TIME_TO_WAIT_BEFORE_UPDATING_VIEW_ITEMS);
-            PieChart1.DataContext = chartData;
+            if (_pieChart.Series.Count > 0)
+            {
+                (_pieChart.Series[0] as PieSeries).MouseUp -= series_MouseUp;
+            }
+            _pieChart.DataContext = chartData;
+            var series = _pieChart.Series[0] as PieSeries;
+            series.MouseUp += series_MouseUp;
+        }
+
+        void series_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            var series = sender as PieSeries;
+            if (series != null && series.SelectedItem != null)
+            {
+                var item = (KeyValuePair<string, int>)series.SelectedItem;
+                var transaction = (TransactionCategory)Enum.Parse(typeof(TransactionCategory), item.Key);
+                if (_lastSeriesFilter == transaction)
+                {
+                    _lastSeriesFilter = TransactionCategory.ALL;
+                    setItemCategoryFilter(TransactionCategory.ALL);
+                }
+                else
+                {
+                    _lastSeriesFilter = transaction;
+                    setItemCategoryFilter(transaction);
+                }
+                _categoryDropdown.SelectedItem = _lastSeriesFilter;
+                if (_lastSeriesFilter == TransactionCategory.ALL)
+                    series.SelectedItem = null;
+                else
+                    series.SelectedItem = _lastSeriesFilter;
+            }
+            else
+            {
+                Console.WriteLine("Unable to find series for clicked item: {0}", sender);
+            }
         }
 
         public static T GetVisualChild<T>(Visual parent) where T : Visual {
@@ -192,11 +229,12 @@ namespace BankApp
             };
         }
 
-        private void setCategoryForSelectedItems(TransactionCategory category) {
+        private void setCategoryForSelectedItems(TransactionCategory category, bool refreshUI = true) {
             foreach (ViewTransaction t in _grid.SelectedItems) {
                 t.Category = category;
             }
-            refreshUIElements();
+            if(refreshUI)
+                refreshUIElements();
         }
 
         private void onSave()

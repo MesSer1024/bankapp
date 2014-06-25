@@ -5,7 +5,8 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
             xmlns:System="clr-namespace:System;assembly=mscorlib"
             xmlns:my="clr-namespace:System.Windows.Controls.DataVisualization.Charting;assembly=System.Windows.Controls.DataVisualization.Toolkit"
-            xmlns:local="clr-namespace:BankApp"
+            xmlns:tk="clr-namespace:System.Windows.Controls.DataVisualization;assembly=System.Windows.Controls.DataVisualization.Toolkit"
+                         xmlns:local="clr-namespace:BankApp"
              mc:Ignorable="d" 
              d:DesignHeight="600" d:DesignWidth="1200">
     <UserControl.Resources>
@@ -80,17 +81,13 @@
                             <Button Name="_filter5" Content="foo!" Style="{StaticResource ResourceKey=btns}" Click="onFilterButtonClick" />
                         </StackPanel>
                         <Label Content="Category:" Grid.Column="1" HorizontalAlignment="Right" />
-                        <ComboBox Grid.Row="1" Grid.Column="1" Margin="5" MinWidth="125" MaxWidth="225" VerticalContentAlignment="Center" HorizontalAlignment="Right" HorizontalContentAlignment="Right" Padding="0,0,8,0" ItemsSource="{Binding Source={StaticResource EnumDataProvider}, Mode=OneWay}" DropDownClosed="ComboBox_DropDownClosed_1" IsTabStop="False" SelectedIndex="5" />
+                        <ComboBox Grid.Row="1" Grid.Column="1" Name="_categoryDropdown" Margin="5" MinWidth="125" MaxWidth="225" VerticalContentAlignment="Center" HorizontalAlignment="Right" HorizontalContentAlignment="Right" Padding="0,0,8,0" ItemsSource="{Binding Source={StaticResource EnumDataProvider}, Mode=OneWay}" DropDownClosed="ComboBox_DropDownClosed_1" SelectedIndex="5" IsTabStop="False" />
                     </Grid>
                 </DockPanel>
             </Grid>
-            <!--<DockPanel Grid.Row="1" Background="Yellow">
-                <ComboBox DockPanel.Dock="Right" Margin="5" MinWidth="125" MaxWidth="225" VerticalContentAlignment="Center" HorizontalAlignment="Right" HorizontalContentAlignment="Right" Padding="0,0,8,0" ItemsSource="{Binding Source={StaticResource EnumDataProvider}, Mode=OneWay}" DropDownClosed="ComboBox_DropDownClosed_1" IsTabStop="False" SelectedIndex="5" />
-                <Label DockPanel.Dock="Left" Margin="0,0,5,0" HorizontalAlignment="Right" VerticalContentAlignment="Center" Content="Category: " />
-            </DockPanel>-->
             <DataGrid Grid.Row="2" HorizontalContentAlignment="Stretch" Name="_grid" ItemsSource="{Binding Transaction}" AutoGenerateColumns="False"
           CanUserReorderColumns="True" CanUserResizeColumns="True" CanUserResizeRows="False" CanUserSortColumns="True" 
-          CanUserDeleteRows="False" CanUserAddRows="False" AlternationCount="2" Padding="4" KeyDown="_grid_key">
+          CanUserDeleteRows="False" CanUserAddRows="False" AlternationCount="2" Padding="4" KeyDown="_grid_key" ScrollViewer.VerticalScrollBarVisibility="Visible">
                 <DataGrid.RowStyle>
                     <Style TargetType="DataGridRow">
                         <Style.Triggers>
@@ -139,8 +136,38 @@
                 <Label Grid.Column="1" Name="_totalText" Content="Total Income:\nTotal Expenses:" VerticalContentAlignment="Center" HorizontalContentAlignment="Right" FontWeight="Bold" />
                 <Label Grid.Column="2" Name="_totalAmount" Content="100\n100" VerticalContentAlignment="Center" HorizontalContentAlignment="Left" FontWeight="Bold" />
             </Grid>
-            <my:Chart Grid.Row="2" Name="PieChart1" Title="Total Marks" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" MinWidth="450" MinHeight="450">
-                <my:PieSeries DependentValuePath="Value" IndependentValuePath="Key" ItemsSource="{Binding}" IsSelectionEnabled="True" />
+            <my:Chart Grid.Row="2" Name="_pieChart" Title="Expenses during Month" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" MinWidth="450" MinHeight="450">
+                <my:PieSeries DependentValuePath="Value" IndependentValuePath="Key" ItemsSource="{Binding}" IsSelectionEnabled="True" ScrollViewer.VerticalScrollBarVisibility="Disabled">
+                    <my:PieSeries.Palette>
+                        <tk:ResourceDictionaryCollection>
+                            <ResourceDictionary>
+                                <Style x:Key="DataPointStyle" TargetType="Control">
+                                    <Setter Property="Background" Value="Yellow"></Setter>
+                                </Style>
+                            </ResourceDictionary>
+                            <ResourceDictionary>
+                                <Style x:Key="DataPointStyle" TargetType="Control">
+                                    <Setter Property="Background" Value="Red"></Setter>
+                                </Style>
+                            </ResourceDictionary>
+                            <ResourceDictionary>
+                                <Style x:Key="DataPointStyle" TargetType="Control">
+                                    <Setter Property="Background" Value="Blue"></Setter>
+                                </Style>
+                            </ResourceDictionary>
+                            <ResourceDictionary>
+                                <Style x:Key="DataPointStyle" TargetType="Control">
+                                    <Setter Property="Background" Value="Orange"></Setter>
+                                </Style>
+                            </ResourceDictionary>
+                            <ResourceDictionary>
+                                <Style x:Key="DataPointStyle" TargetType="Control">
+                                    <Setter Property="Background" Value="HotPink"></Setter>
+                                </Style>
+                            </ResourceDictionary>
+                        </tk:ResourceDictionaryCollection>
+                    </my:PieSeries.Palette>
+                </my:PieSeries>
             </my:Chart>
         </Grid>
 
