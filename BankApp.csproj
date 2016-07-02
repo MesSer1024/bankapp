@@ -66,7 +66,11 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="AutoCategorizeScreen.xaml.cs">
+      <DependentUpon>AutoCategorizeScreen.xaml</DependentUpon>
+    </Compile>
     <Compile Include="CloseOverlayMessage.cs" />
+    <Compile Include="DatabaseUpdatedMessage.cs" />
     <Compile Include="InsertTransactionsMessage.cs" />
     <Compile Include="LoadTransactionsMessage.cs" />
     <Compile Include="MessageManager.cs" />
@@ -79,6 +83,10 @@
     </Compile>
     <Compile Include="TransactionApplication.cs" />
     <Compile Include="WpfUtils.cs" />
+    <Page Include="AutoCategorizeScreen.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

@@ -14,7 +14,7 @@
                         MethodName="GetValues" 
                         ObjectType="{x:Type System:Enum}">
             <ObjectDataProvider.MethodParameters>
-                <x:Type TypeName="local:TransactionCategory"/>
+                <x:Type TypeName="local:SuggestedCategory"/>
             </ObjectDataProvider.MethodParameters>
         </ObjectDataProvider>
     </UserControl.Resources>

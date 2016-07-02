@@ -19,6 +19,8 @@
                 <MenuItem Header="Save" Command="Save" />
                 <MenuItem Header="Load" Command="Open" />
                 <MenuItem Header="Add to DB" Click="onAddToDatabase" />
+                <MenuItem Header="Add to DB (many)" Click="onAddToDatabaseMany" />
+                <MenuItem Header="Auto categorize-screen" Click="onAutoCategorize" />
             </MenuItem>
         </Menu>
         <Grid Name="_content" />

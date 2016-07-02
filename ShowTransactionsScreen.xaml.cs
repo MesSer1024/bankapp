@@ -28,14 +28,14 @@ namespace BankApp
         private const int ARBITARY_TIME_TO_WAIT_BEFORE_UPDATING_VIEW_ITEMS = 50;
         private FilterHandler _filters;
         private bool _initialized;
-        private TransactionCategory _lastSeriesFilter;
+        private SuggestedCategory _lastSeriesFilter;
         private int _lastYear;
 
-        public ShowTransactionsScreen()
+        public ShowTransactionsScreen(List<ViewTransaction> transactions)
         {
             InitializeComponent();
             MessageManager.addListener(this);
-            _allTransactions = new List<ViewTransaction>();
+            _allTransactions = transactions;
             _filters = new FilterHandler(new Button[5] { _filter1, _filter2, _filter3, _filter4, _filter5 });
             _filters.setMarked(0);
 
@@ -131,16 +131,28 @@ namespace BankApp
             var totalIncome = 0;
             var totalExpense = 0;
             var chartData = new Dictionary<string, int>();
+            foreach(var c in Enum.GetValues(typeof(SuggestedCategory)))
+            {
+                chartData.Add(Enum.GetName(typeof(SuggestedCategory), c), 0);
+            }
             foreach (var t in subset)
             {
-                if (t.Amount > 0) {
-                    totalIncome += (int)t.Amount;
-                    continue;
-                } else {
-                    totalExpense += (int)t.Amount;
+                bool isExpense = (t.Category != SuggestedCategory.EXCLUDED && t.Category != SuggestedCategory.Savings);
+                if (isExpense)
+                {
+                    if (t.Amount > 0)
+                    {
+                        totalIncome += (int)t.Amount;
+                        continue; //skip showing in pie chart
+                    }
+                    else {
+                        totalExpense += (int)t.Amount;
+                    }
                 }
+                if (t.Category == SuggestedCategory.EXCLUDED)
+                    continue; //don't show in piechart
 
-                var s = Enum.GetName(typeof(TransactionCategory), t.Category);
+                var s = Enum.GetName(typeof(SuggestedCategory), t.Category);
                 if (chartData.ContainsKey(s))
                     chartData[s] += (int)t.Amount;
                 else
@@ -176,11 +188,11 @@ namespace BankApp
             if (series != null && series.SelectedItem != null)
             {
                 var item = (KeyValuePair<string, int>)series.SelectedItem;
-                var transaction = (TransactionCategory)Enum.Parse(typeof(TransactionCategory), item.Key);
+                var transaction = (SuggestedCategory)Enum.Parse(typeof(SuggestedCategory), item.Key);
                 if (_lastSeriesFilter == transaction)
                 {
-                    _lastSeriesFilter = TransactionCategory.ALL;
-                    setItemCategoryFilter(TransactionCategory.ALL);
+                    _lastSeriesFilter = SuggestedCategory.ALL;
+                    setItemCategoryFilter(SuggestedCategory.ALL);
                 }
                 else
                 {
@@ -188,7 +200,7 @@ namespace BankApp
                     setItemCategoryFilter(transaction);
                 }
                 _categoryDropdown.SelectedItem = _lastSeriesFilter;
-                if (_lastSeriesFilter == TransactionCategory.ALL)
+                if (_lastSeriesFilter == SuggestedCategory.ALL)
                     series.SelectedItem = null;
                 else
                     series.SelectedItem = _lastSeriesFilter;
@@ -220,13 +232,13 @@ namespace BankApp
             var box = sender as ComboBox;
             if (box.SelectedValue == null)
                 return;
-            var category = (TransactionCategory)box.SelectedValue;
+            var category = (SuggestedCategory)box.SelectedValue;
             setItemCategoryFilter(category);
         }
 
-        private void setItemCategoryFilter(TransactionCategory c)
+        private void setItemCategoryFilter(SuggestedCategory c)
         {
-            if (c == TransactionCategory.ALL)
+            if (c == SuggestedCategory.ALL)
             {
                 _grid.Items.Filter = null;
                 return;
@@ -239,64 +251,12 @@ namespace BankApp
             };
         }
 
-        private void setCategoryForSelectedItems(TransactionCategory category, bool refreshUI = true) {
+        private void setCategoryForSelectedItems(SuggestedCategory category, bool refreshUI = true) {
             foreach (ViewTransaction t in _grid.SelectedItems) {
                 t.Category = category;
             }
             if(refreshUI)
                 refreshUIElements();
-        }
-
-        private void onSave()
-        {
-            var transactions = new List<Transaction>();
-            foreach (var t in _allTransactions)
-            {
-                transactions.Add(t.transaction);
-            }
-            new BankLib(null).Save(transactions);
-        }
-
-        private void onLoad()
-        {
-            var foo = new BankLib(null);
-            try {
-                var transactions = foo.Load();
-                foreach (var t in transactions)
-                {
-                    bool add = true;
-                    foreach (var a in _allTransactions)
-                    {
-                        if (a.Description == t.Info && a.Date == t.Date && a.Amount == t.Amount)
-                        {
-                            add = false;
-                            break;
-                        }
-                    }
-                    if (add)
-                        _allTransactions.Add(new ViewTransaction(t));
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.ToString());
-            }
-            //var transactions = new List<Transaction>();
-            //foo.parseFile("../../_assets/export.csv", ref transactions);
-            //foo.parseFile("../../_assets/export2.csv", ref transactions);
-            //foo.Save(transactions);
-
-            string[] enumNames = Enum.GetNames(typeof(TransactionCategory));
-            int n = Math.Min(_wrapPanel.Children.Count, enumNames.Length);
-            for (int i = 0; i < n; ++i)
-            {
-                Label l = _wrapPanel.Children[i] as Label;
-                l.Content = String.Format("{0} = {1}", i, enumNames[i]);
-            }
-            _wrapPanel.Children.RemoveRange(n, _wrapPanel.Children.Count - n);
-
-            refreshUIElements();
-
         }
 
         private void CommandBinding_Executed_3(object sender, ExecutedRoutedEventArgs e)
@@ -306,22 +266,9 @@ namespace BankApp
 
         private void _grid_key(object sender, KeyEventArgs e) {
             if (e.Key != Key.LeftCtrl && Keyboard.IsKeyDown(Key.LeftCtrl) && e.IsRepeat == false) {
-                switch (e.Key) {
-                    case Key.D0:
-                        setCategoryForSelectedItems((TransactionCategory)0);
-                        break;
-                    case Key.D1:
-                        setCategoryForSelectedItems((TransactionCategory)1);
-                        break;
-                    case Key.D2:
-                        setCategoryForSelectedItems((TransactionCategory)2);
-                        break;
-                    case Key.D3:
-                        setCategoryForSelectedItems((TransactionCategory)3);
-                        break;
-                    case Key.D4:
-                        setCategoryForSelectedItems((TransactionCategory)4);
-                        break;
+                    if(e.Key >= Key.D0 && e.Key <= Key.D9)
+                {
+                    setCategoryForSelectedItems((SuggestedCategory)(e.Key - Key.D0));
                 }
             }
             else if (e.Key != Key.LeftAlt && Keyboard.IsKeyDown(Key.LeftAlt) && e.IsRepeat == false)
@@ -359,33 +306,17 @@ namespace BankApp
 
         public void onMessage(IMessage message)
         {
-            if (message is SaveTransactionsMessage)
+            if(message is DatabaseUpdatedMessage)
             {
-                onSave();
-            }
-            else if (message is LoadTransactionsMessage)
-            {
-                onLoad();
-            }
-            else if (message is InsertTransactionsMessage)
-            {
-                var msg = message as InsertTransactionsMessage;
-                var orgCount = _allTransactions.Count;
-                foreach (var t in msg.Transactions)
+                string[] enumNames = Enum.GetNames(typeof(SuggestedCategory));
+                int n = Math.Min(_wrapPanel.Children.Count, enumNames.Length);
+                for (int i = 0; i < n; ++i)
                 {
-                    bool add = true;
-                    foreach (var a in _allTransactions)
-                    {
-                        if (a.Description == t.Info && a.Date == t.Date && a.Amount == t.Amount)
-                        {
-                            add = false;
-                            break;
-                        }
-                    }
-                    if (add)
-                        _allTransactions.Add(new ViewTransaction(t));
+                    Label l = _wrapPanel.Children[i] as Label;
+                    l.Content = String.Format("{0} = {1}", i, enumNames[i]);
                 }
-                MessageBox.Show(String.Format("Parsed {0} items and added {1} to database as unique entries", msg.Transactions.Length, _allTransactions.Count - orgCount));
+                _wrapPanel.Children.RemoveRange(n, _wrapPanel.Children.Count - n);
+
                 refreshUIElements();
             }
         }
