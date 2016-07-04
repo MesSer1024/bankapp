@@ -17,29 +17,43 @@ using System.Windows.Shapes;
 
 namespace BankApp
 {
+    public class AutoCategorizeViewModel
+    {
+        public static List<ViewTransaction> AllTransactions { get; set; }
+        public static List<Category> AllCategories { get; set; }
+    }
+
     /// <summary>
     /// Interaction logic for AutoCategorizeScreen.xaml
     /// </summary>
     public partial class AutoCategorizeScreen : UserControl
     {
         private List<ViewTransaction> _allTransactions;
-        public List<Category> Categories { get; private set; }
+        private AutoCategorizeViewModel _viewModel;
 
         public AutoCategorizeScreen(List<ViewTransaction> transactions)
         {
-            Categories = BankApplicationState.UserConfig.Categories;
-            InitializeComponent();
             _allTransactions = transactions;
+            _viewModel = new AutoCategorizeViewModel();
+            AutoCategorizeViewModel.AllCategories = BankApplicationState.UserConfig.Categories;
+            AutoCategorizeViewModel.AllTransactions = _allTransactions;
+            InitializeComponent();
 
-            var subset = _allTransactions;
-            var selIndex = _grid.SelectedIndex;
-            foreach (var item in subset)
+            foreach (var item in AutoCategorizeViewModel.AllTransactions)
             {
                 setSuggestedCategory(item);
             }
-            _grid.ItemsSource = subset;
-            selIndex = Math.Max(0, Math.Min(selIndex, subset.Count()));
-            _grid.SelectedIndex = selIndex;
+            _grid.DataContext = _viewModel;
+
+            //var subset = _allTransactions;
+            //var selIndex = _grid.SelectedIndex;
+            //foreach (var item in subset)
+            //{
+            //    setSuggestedCategory(item);
+            //}
+            //_grid.ItemsSource = subset;
+            //selIndex = Math.Max(0, Math.Min(selIndex, subset.Count()));
+            //_grid.SelectedIndex = selIndex;
             //writeItems(subset);
         }
 

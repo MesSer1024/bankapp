@@ -33,12 +33,16 @@ namespace BankApp
         private bool _initialized;
         private Category _lastSeriesFilter;
         private int _lastYear;
+        private List<Category> AvailableViewCategories { get; set; }
 
         public ShowTransactionsScreen(List<ViewTransaction> transactions)
         {
 
             InitializeComponent();
-            _categoryDropdown.ItemsSource = BankApplicationState.UserConfig.Categories;
+            AvailableViewCategories = new List<Category>();
+            AvailableViewCategories.Add(new Category(Category.CategorySetting.ALL) { CategoryName = "* ALL", Description = "All items", Identifier = 20000 });
+            AvailableViewCategories.AddRange(BankApplicationState.UserConfig.Categories);
+            _categoryDropdown.ItemsSource = AvailableViewCategories;
             _allTransactions = transactions;
             _filters = new FilterHandler(new Button[5] { _filter1, _filter2, _filter3, _filter4, _filter5 });
             _filters.setMarked(0);
@@ -176,31 +180,30 @@ namespace BankApp
 
         void series_MouseUp(object sender, MouseButtonEventArgs e)
         {
-            //var series = sender as PieSeries;
-            //if (series != null && series.SelectedItem != null)
-            //{
-            //    var item = (KeyValuePair<string, int>)series.SelectedItem;
-            //    var transaction = (SuggestedCategory)Enum.Parse(typeof(SuggestedCategory), item.Key);
-            //    if (_lastSeriesFilter == transaction)
-            //    {
-            //        _lastSeriesFilter = SuggestedCategory.ALL;
-            //        setItemCategoryFilter(SuggestedCategory.ALL);
-            //    }
-            //    else
-            //    {
-            //        _lastSeriesFilter = transaction;
-            //        setItemCategoryFilter(transaction);
-            //    }
-            //    _categoryDropdown.SelectedItem = _lastSeriesFilter;
-            //    if (_lastSeriesFilter == SuggestedCategory.ALL)
-            //        series.SelectedItem = null;
-            //    else
-            //        series.SelectedItem = _lastSeriesFilter;
-            //}
-            //else
-            //{
-            //    Console.WriteLine("Unable to find series for clicked item: {0}", sender);
-            //}
+            var series = sender as PieSeries;
+            if (series != null && series.SelectedItem != null)
+            {
+                var item = (KeyValuePair<string, int>)series.SelectedItem;
+                var categoryName = item.Key;
+                var category = AvailableViewCategories.Find(a => a.CategoryName == categoryName);
+
+                if (_lastSeriesFilter == category)
+                {
+                    _lastSeriesFilter = null;
+                    setItemCategoryFilter(_lastSeriesFilter);
+                }
+                else
+                {
+                    _lastSeriesFilter = category;
+                    setItemCategoryFilter(category);
+                }
+                _categoryDropdown.SelectedItem = _lastSeriesFilter;
+                series.SelectedItem = _lastSeriesFilter;
+            }
+            else
+            {
+                Console.WriteLine("Unable to find series for clicked item: {0}", sender);
+            }
         }
 
         public static T GetVisualChild<T>(Visual parent) where T : Visual {
@@ -230,7 +233,7 @@ namespace BankApp
 
         private void setItemCategoryFilter(Category c)
         {
-            if (c.Setting == Category.CategorySetting.ALL)
+            if (c == null || c == AvailableViewCategories[0])
             {
                 _grid.Items.Filter = null;
                 return;
@@ -241,13 +244,6 @@ namespace BankApp
                 var item = a as ViewTransaction;
                 return item.UsedCategory.Identifier == c.Identifier;
             };
-
-
-            //_grid.Items.Filter = a =>
-            //{
-            //    var item = a as ViewTransaction;
-            //    return item.UsedCategory == c;
-            //};
         }
 
         private void setCategoryForSelectedItems(Category category, bool refreshUI = true) {

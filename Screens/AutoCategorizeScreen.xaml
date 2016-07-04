@@ -3,12 +3,13 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-            xmlns:local="clr-namespace:BankApp"
-            xmlns:System="clr-namespace:System;assembly=mscorlib"
-            xmlns:my="clr-namespace:System.Windows.Controls.DataVisualization.Charting;assembly=System.Windows.Controls.DataVisualization.Toolkit"
-            xmlns:tk="clr-namespace:System.Windows.Controls.DataVisualization;assembly=System.Windows.Controls.DataVisualization.Toolkit"
              mc:Ignorable="d" 
-             d:DesignHeight="600" d:DesignWidth="1200">
+             d:DesignHeight="600" d:DesignWidth="1200"
+            xmlns:local="clr-namespace:BankApp"             
+             >
+    <UserControl.Resources>
+        <local:AutoCategorizeViewModel x:Key="ViewModel" />
+    </UserControl.Resources>
     <Grid Background="Blue" Margin="3">
         <Grid.RowDefinitions>
             <RowDefinition Height="30" />
@@ -18,7 +19,7 @@
         <DockPanel Grid.Row="0" HorizontalAlignment="Right">
             <Button DockPanel.Dock="Right" Content="X" Width="30" Height="30" Click="onClose" />
         </DockPanel>
-        <DataGrid Grid.Row="1" HorizontalContentAlignment="Stretch" Name="_grid" ItemsSource="{Binding Transaction}" AutoGenerateColumns="False"
+        <DataGrid Grid.Row="1" HorizontalContentAlignment="Stretch" Name="_grid" AutoGenerateColumns="False" ItemsSource="{Binding AllTransactions}"
           CanUserReorderColumns="True" CanUserResizeColumns="True" CanUserResizeRows="False" CanUserSortColumns="True" 
           CanUserDeleteRows="False" CanUserAddRows="False" AlternationCount="2" Padding="4" ScrollViewer.VerticalScrollBarVisibility="Visible">
             <DataGrid.RowStyle>
@@ -34,8 +35,46 @@
                 <DataGridTextColumn Binding="{Binding Date}" Header="Date" IsReadOnly="True" />
                 <DataGridTextColumn Binding="{Binding Description}" Header="Info" IsReadOnly="True"/>
                 <DataGridTextColumn Binding="{Binding Amount}" Header="Amount" IsReadOnly="True"/>
-                <DataGridComboBoxColumn Header="Category" ItemsSource="{Binding Categories, Mode=OneWay}" SelectedValueBinding="{Binding Path=CategoryName}" IsReadOnly="True" />
-                <DataGridComboBoxColumn Header="Suggested Category" ItemsSource="{Binding Categories, Mode=OneWay}" SelectedValueBinding="{Binding Path=CategoryName}" IsReadOnly="True" />
+                <DataGridTextColumn Header="Category" Binding="{Binding UsedCategory.CategoryName}" />
+                <DataGridComboBoxColumn Header="Suggested Category" SortMemberPath="WantedCategory.CategoryName">
+                    <DataGridComboBoxColumn.ElementStyle>
+                        <Style TargetType="{x:Type ComboBox}">
+                            <Setter Property="ItemsSource" Value="{Binding Source={StaticResource ViewModel}, Path=AllCategories}"/>
+                            <Setter Property="ItemTemplate">
+                                <Setter.Value>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="{Binding CategoryName}"  />
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </Setter.Value>
+                            </Setter>
+                            <Setter Property="SelectedItem" Value="{Binding Path=WantedCategory}" />
+                            <Setter Property="SelectedValue" Value="{Binding Path=WantedCategory.CategoryName}" />
+                            <Setter Property="SelectedValuePath" Value="CategoryName" />
+                            <Setter Property="Foreground" Value="Red" />
+                        </Style>
+                    </DataGridComboBoxColumn.ElementStyle>
+                    <DataGridComboBoxColumn.EditingElementStyle>
+                        <Style TargetType="{x:Type ComboBox}">
+                            <Setter Property="ItemsSource" Value="{Binding Source={StaticResource ViewModel}, Path=AllCategories}"/>
+                            <Setter Property="ItemTemplate">
+                                <Setter.Value>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="{Binding CategoryName}"  />
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </Setter.Value>
+                            </Setter>
+                            <Setter Property="SelectedItem" Value="{Binding Path=WantedCategory}" />
+                            <Setter Property="SelectedValue" Value="{Binding Path=WantedCategory.CategoryName}" />
+                            <Setter Property="SelectedValuePath" Value="CategoryName" />
+                            <Setter Property="Foreground" Value="Red" />
+                        </Style>
+                    </DataGridComboBoxColumn.EditingElementStyle>
+                </DataGridComboBoxColumn>
+
             </DataGrid.Columns>
         </DataGrid>
         <DockPanel Grid.Row="2">

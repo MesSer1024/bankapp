@@ -26,6 +26,11 @@ namespace BankApp
         {
             Setting = setting;
         }
+
+        public override string ToString()
+        {
+            return "fii";
+        }
     }
 
     public class UserConfiguration

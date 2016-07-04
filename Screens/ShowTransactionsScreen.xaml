@@ -77,7 +77,7 @@
                             <ComboBox.ItemTemplate>
                                 <DataTemplate>
                                     <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="{Binding CategoryName}" />
+                                        <TextBlock Text="{Binding CategoryName}"  />
                                     </StackPanel>
                                 </DataTemplate>
                             </ComboBox.ItemTemplate>
@@ -101,7 +101,7 @@
                     <DataGridTextColumn Binding="{Binding Date}" Header="Date" IsReadOnly="True" />
                     <DataGridTextColumn Binding="{Binding Description}" Header="Info" IsReadOnly="True"/>
                     <DataGridTextColumn Binding="{Binding Amount}" Header="Amount" IsReadOnly="True"/>
-                    <DataGridComboBoxColumn Header="Category" ItemsSource="{Binding Categories, Mode=OneWay}" SelectedValueBinding="{Binding Path=CategoryName}" IsReadOnly="True" />
+                    <DataGridTextColumn Header="Category" Binding="{Binding UsedCategory.CategoryName}" IsReadOnly="True" />
                 </DataGrid.Columns>
             </DataGrid>
         </Grid>
