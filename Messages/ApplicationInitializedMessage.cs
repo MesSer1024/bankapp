@@ -3,12 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows;
 
-namespace BankApp
+namespace BankApp.Messages
 {
-    class CloseOverlayMessage : IMessage
+    class ApplicationInitializedMessage : IMessage
     {
-        public UIElement Overlay { get; set; }
     }
 }

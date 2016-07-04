@@ -23,6 +23,8 @@
                 <MenuItem Header="Auto categorize-screen" Click="onAutoCategorize" />
             </MenuItem>
         </Menu>
+        <ToolBar DockPanel.Dock="Top" MinHeight="20">
+        </ToolBar>        
         <Grid Name="_content" />
     </DockPanel>
 </Window>

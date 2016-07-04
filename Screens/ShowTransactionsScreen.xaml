@@ -9,15 +9,6 @@
             xmlns:tk="clr-namespace:System.Windows.Controls.DataVisualization;assembly=System.Windows.Controls.DataVisualization.Toolkit"
              mc:Ignorable="d" 
              d:DesignHeight="600" d:DesignWidth="1200">
-    <UserControl.Resources>
-        <ObjectDataProvider x:Key="EnumDataProvider" 
-                        MethodName="GetValues" 
-                        ObjectType="{x:Type System:Enum}">
-            <ObjectDataProvider.MethodParameters>
-                <x:Type TypeName="local:SuggestedCategory"/>
-            </ObjectDataProvider.MethodParameters>
-        </ObjectDataProvider>
-    </UserControl.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"  />
@@ -82,7 +73,15 @@
                             <Button Name="_filter5" Content="foo!" Style="{StaticResource ResourceKey=btns}" Click="onFilterButtonClick" />
                         </StackPanel>
                         <Label Content="Category:" Grid.Column="1" HorizontalAlignment="Right" />
-                        <ComboBox Grid.Row="1" Grid.Column="1" Name="_categoryDropdown" Margin="5" MinWidth="125" MaxWidth="225" VerticalContentAlignment="Center" HorizontalAlignment="Right" HorizontalContentAlignment="Right" Padding="0,0,8,0" ItemsSource="{Binding Source={StaticResource EnumDataProvider}, Mode=OneWay}" DropDownClosed="ComboBox_DropDownClosed_1" SelectedIndex="5" IsTabStop="False" />
+                        <ComboBox Grid.Row="1" Grid.Column="1" Name="_categoryDropdown" Margin="5" MinWidth="125" MaxWidth="225" VerticalContentAlignment="Center" HorizontalAlignment="Right" HorizontalContentAlignment="Right" Padding="0,0,8,0" DropDownClosed="ComboBox_DropDownClosed_1" SelectedIndex="5" IsTabStop="False">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="{Binding CategoryName}" />
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
                     </Grid>
                 </DockPanel>
             </Grid>
@@ -102,7 +101,7 @@
                     <DataGridTextColumn Binding="{Binding Date}" Header="Date" IsReadOnly="True" />
                     <DataGridTextColumn Binding="{Binding Description}" Header="Info" IsReadOnly="True"/>
                     <DataGridTextColumn Binding="{Binding Amount}" Header="Amount" IsReadOnly="True"/>
-                    <DataGridComboBoxColumn Header="Category" ItemsSource="{Binding Source={StaticResource EnumDataProvider}, Mode=OneWay}" SelectedValueBinding="{Binding Path=Category}" IsReadOnly="True" />
+                    <DataGridComboBoxColumn Header="Category" ItemsSource="{Binding Categories, Mode=OneWay}" SelectedValueBinding="{Binding Path=CategoryName}" IsReadOnly="True" />
                 </DataGrid.Columns>
             </DataGrid>
         </Grid>

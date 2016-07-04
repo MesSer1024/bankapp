@@ -9,15 +9,6 @@
             xmlns:tk="clr-namespace:System.Windows.Controls.DataVisualization;assembly=System.Windows.Controls.DataVisualization.Toolkit"
              mc:Ignorable="d" 
              d:DesignHeight="600" d:DesignWidth="1200">
-    <UserControl.Resources>
-        <ObjectDataProvider x:Key="SuggestedCategoryEnumDataProvider" 
-                        MethodName="GetValues" 
-                        ObjectType="{x:Type System:Enum}">
-            <ObjectDataProvider.MethodParameters>
-                <x:Type TypeName="local:SuggestedCategory"/>
-            </ObjectDataProvider.MethodParameters>
-        </ObjectDataProvider>
-    </UserControl.Resources>
     <Grid Background="Blue" Margin="3">
         <Grid.RowDefinitions>
             <RowDefinition Height="30" />
@@ -43,8 +34,8 @@
                 <DataGridTextColumn Binding="{Binding Date}" Header="Date" IsReadOnly="True" />
                 <DataGridTextColumn Binding="{Binding Description}" Header="Info" IsReadOnly="True"/>
                 <DataGridTextColumn Binding="{Binding Amount}" Header="Amount" IsReadOnly="True"/>
-                <DataGridComboBoxColumn Header="Category" ItemsSource="{Binding Source={StaticResource SuggestedCategoryEnumDataProvider}, Mode=OneWay}" SelectedValueBinding="{Binding Path=Category}" IsReadOnly="True" />
-                <DataGridComboBoxColumn Header="Suggested Category" ItemsSource="{Binding Source={StaticResource SuggestedCategoryEnumDataProvider}, Mode=OneWay}" SelectedValueBinding="{Binding Path=Suggested}" IsReadOnly="True" />
+                <DataGridComboBoxColumn Header="Category" ItemsSource="{Binding Categories, Mode=OneWay}" SelectedValueBinding="{Binding Path=CategoryName}" IsReadOnly="True" />
+                <DataGridComboBoxColumn Header="Suggested Category" ItemsSource="{Binding Categories, Mode=OneWay}" SelectedValueBinding="{Binding Path=CategoryName}" IsReadOnly="True" />
             </DataGrid.Columns>
         </DataGrid>
         <DockPanel Grid.Row="2">

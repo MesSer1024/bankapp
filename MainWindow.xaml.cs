@@ -15,26 +15,11 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using BankAppLib;
 using Microsoft.Win32;
+using BankApp._code;
+using BankApp.Messages;
 
 namespace BankApp
 {
-    public enum SuggestedCategory
-    {
-        Undefined,
-        EXCLUDED,
-        Savings,
-        Household,
-        Household_Furniture_Medicine_Stuff,
-        Food_Regular,
-        Food_EatingOutAndDrinks,
-        Transportation,
-        ClothesAndStuff,
-        Vacation,
-        Incomes,
-        Incomes_Unknown,
-        ALL,
-    }
-
     public class ViewTransaction
     {
         public Transaction transaction { get; private set; }
@@ -42,16 +27,17 @@ namespace BankApp
         public string Date { get { return transaction.Date; } }
         public DateTime DateObject { get { return _date; } }
         public double Amount { get { return transaction.Amount; } }
-        public SuggestedCategory Suggested { get; set; }
-        public SuggestedCategory Category 
-        { 
-            get { return (SuggestedCategory)transaction.Category; } 
-            set { transaction.Category = (int)value; } 
-        }
+        public Category WantedCategory { get; set; }
+        public Category UsedCategory { get; set; }
 
         public ViewTransaction(Transaction t)
         {
             transaction = t;
+            if(transaction.Category >= BankApplicationState.UserConfig.Categories.Count)
+            {
+                transaction.Category = BankApplicationState.UserConfig.Categories.Find(a => a.Setting == Category.CategorySetting.Default).Identifier;
+            }
+            UsedCategory = BankApplicationState.UserConfig.Categories[transaction.Category];
             _date = DateTime.Parse(t.Date);
         }
 
@@ -64,15 +50,15 @@ namespace BankApp
     /// </summary>
     public partial class MainWindow : Window, IMessageListener
     {
-        private UIElement _overlay;
-        private List<ViewTransaction> _allTransactions = new List<ViewTransaction>();
+        BankApplicationMain _main;
 
         public MainWindow()
         {
+            _main = new BankApplicationMain(this);
             WpfUtils.MainDispatcher = this.Dispatcher;
             InitializeComponent();
             MessageManager.addListener(this);
-            _content.Children.Add(new ShowTransactionsScreen(_allTransactions));
+            MessageManager.queueMessage(new ApplicationInitializedMessage());
         }
 
         private void onSave(object sender, ExecutedRoutedEventArgs e)
@@ -87,8 +73,7 @@ namespace BankApp
 
         private void onAddToDatabase(object sender, RoutedEventArgs e)
         {
-            _overlay = new ParseBankInput();
-            _content.Children.Add(_overlay);
+            _content.Children.Add(new ParseBankInput());
         }
 
         private void onAddToDatabaseMany(object sender, RoutedEventArgs e)
@@ -135,12 +120,7 @@ namespace BankApp
 
         public void onMessage(IMessage message)
         {
-            if (message is CloseOverlayMessage)
-            {
-                var msg = message as CloseOverlayMessage;
-                _content.Children.Remove(msg.Overlay);
-            }
-            else if (message is SaveTransactionsMessage)
+            if (message is SaveTransactionsMessage)
             {
                 SaveDatabase();
             }
@@ -148,40 +128,18 @@ namespace BankApp
             {
                 LoadDatabase();
             }
-            else if (message is InsertTransactionsMessage)
-            {
-                var msg = message as InsertTransactionsMessage;
-                var orgCount = _allTransactions.Count;
-                foreach (var t in msg.Transactions)
-                {
-                    bool add = true;
-                    foreach (var a in _allTransactions)
-                    {
-                        if (a.Description == t.Info && a.Date == t.Date && a.Amount == t.Amount)
-                        {
-                            add = false;
-                            break;
-                        }
-                    }
-                    if (add)
-                        _allTransactions.Add(new ViewTransaction(t));
-                }
-                MessageBox.Show(String.Format("Parsed {0} items and added {1} to database as unique entries", msg.Transactions.Length, _allTransactions.Count - orgCount));
-                MessageManager.queueMessage(new DatabaseUpdatedMessage());
-            }
 
         }
 
         private void onAutoCategorize(object sender, RoutedEventArgs e)
         {
-            _overlay = new AutoCategorizeScreen(_allTransactions);
-            _content.Children.Add(_overlay);
+            _content.Children.Add(new AutoCategorizeScreen(BankApplicationState.AllTransactions));
         }
 
         private void SaveDatabase()
         {
             var transactions = new List<Transaction>();
-            foreach (var t in _allTransactions)
+            foreach (var t in BankApplicationState.AllTransactions)
             {
                 transactions.Add(t.transaction);
             }
@@ -197,7 +155,7 @@ namespace BankApp
                 foreach (var t in transactions)
                 {
                     bool add = true;
-                    foreach (var a in _allTransactions)
+                    foreach (var a in BankApplicationState.AllTransactions)
                     {
                         if (a.Description == t.Info && a.Date == t.Date && a.Amount == t.Amount)
                         {
@@ -206,7 +164,7 @@ namespace BankApp
                         }
                     }
                     if (add)
-                        _allTransactions.Add(new ViewTransaction(t));
+                        BankApplicationState.AllTransactions.Add(new ViewTransaction(t));
                 }
             }
             catch (Exception ex)

@@ -16,25 +16,29 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using BankAppLib;
+using BankApp.Screens;
 
 namespace BankApp
 {
     /// <summary>
     /// Interaction logic for ShowTransactionsScreen.xaml
     /// </summary>
-    public partial class ShowTransactionsScreen : UserControl, IMessageListener
+    public partial class ShowTransactionsScreen : UserControl, IMessageListener, IBankScreen
     {
+        public List<Category> Categories { get; private set; }
+
         private List<ViewTransaction> _allTransactions;
         private const int ARBITARY_TIME_TO_WAIT_BEFORE_UPDATING_VIEW_ITEMS = 50;
         private FilterHandler _filters;
         private bool _initialized;
-        private SuggestedCategory _lastSeriesFilter;
+        private Category _lastSeriesFilter;
         private int _lastYear;
 
         public ShowTransactionsScreen(List<ViewTransaction> transactions)
         {
+
             InitializeComponent();
-            MessageManager.addListener(this);
+            _categoryDropdown.ItemsSource = BankApplicationState.UserConfig.Categories;
             _allTransactions = transactions;
             _filters = new FilterHandler(new Button[5] { _filter1, _filter2, _filter3, _filter4, _filter5 });
             _filters.setMarked(0);
@@ -43,11 +47,6 @@ namespace BankApp
             _initialized = true;
             _lastYear = DateTime.Now.Year;
             _year.Text = _lastYear.ToString();
-        }
-
-        ~ShowTransactionsScreen()
-        {
-            MessageManager.removeListener(this);
         }
 
         private class FilterHandler
@@ -131,32 +130,25 @@ namespace BankApp
             var totalIncome = 0;
             var totalExpense = 0;
             var chartData = new Dictionary<string, int>();
-            foreach(var c in Enum.GetValues(typeof(SuggestedCategory)))
+            foreach(var c in BankApplicationState.UserConfig.Categories)
             {
-                chartData.Add(Enum.GetName(typeof(SuggestedCategory), c), 0);
+                chartData.Add(c.CategoryName, 0);
             }
             foreach (var t in subset)
             {
-                bool isExpense = (t.Category != SuggestedCategory.EXCLUDED && t.Category != SuggestedCategory.Savings);
-                if (isExpense)
-                {
-                    if (t.Amount > 0)
-                    {
-                        totalIncome += (int)t.Amount;
-                        continue; //skip showing in pie chart
-                    }
-                    else {
-                        totalExpense += (int)t.Amount;
-                    }
-                }
-                if (t.Category == SuggestedCategory.EXCLUDED)
+                if (t.UsedCategory.Setting == Category.CategorySetting.ExcludeEverywhere)
+                    continue;
+
+                if (t.Amount > 0)
+                    totalIncome += (int)t.Amount;
+                else 
+                    totalExpense += (int)t.Amount;
+
+                if (t.UsedCategory.Setting == Category.CategorySetting.Income)
                     continue; //don't show in piechart
 
-                var s = Enum.GetName(typeof(SuggestedCategory), t.Category);
-                if (chartData.ContainsKey(s))
-                    chartData[s] += (int)t.Amount;
-                else
-                    chartData.Add(s, (int)t.Amount);
+                var key = t.UsedCategory.CategoryName;
+                chartData[key] += (int)t.Amount;
             }
             var selIndex = _grid.SelectedIndex;
             _grid.ItemsSource = subset;
@@ -184,31 +176,31 @@ namespace BankApp
 
         void series_MouseUp(object sender, MouseButtonEventArgs e)
         {
-            var series = sender as PieSeries;
-            if (series != null && series.SelectedItem != null)
-            {
-                var item = (KeyValuePair<string, int>)series.SelectedItem;
-                var transaction = (SuggestedCategory)Enum.Parse(typeof(SuggestedCategory), item.Key);
-                if (_lastSeriesFilter == transaction)
-                {
-                    _lastSeriesFilter = SuggestedCategory.ALL;
-                    setItemCategoryFilter(SuggestedCategory.ALL);
-                }
-                else
-                {
-                    _lastSeriesFilter = transaction;
-                    setItemCategoryFilter(transaction);
-                }
-                _categoryDropdown.SelectedItem = _lastSeriesFilter;
-                if (_lastSeriesFilter == SuggestedCategory.ALL)
-                    series.SelectedItem = null;
-                else
-                    series.SelectedItem = _lastSeriesFilter;
-            }
-            else
-            {
-                Console.WriteLine("Unable to find series for clicked item: {0}", sender);
-            }
+            //var series = sender as PieSeries;
+            //if (series != null && series.SelectedItem != null)
+            //{
+            //    var item = (KeyValuePair<string, int>)series.SelectedItem;
+            //    var transaction = (SuggestedCategory)Enum.Parse(typeof(SuggestedCategory), item.Key);
+            //    if (_lastSeriesFilter == transaction)
+            //    {
+            //        _lastSeriesFilter = SuggestedCategory.ALL;
+            //        setItemCategoryFilter(SuggestedCategory.ALL);
+            //    }
+            //    else
+            //    {
+            //        _lastSeriesFilter = transaction;
+            //        setItemCategoryFilter(transaction);
+            //    }
+            //    _categoryDropdown.SelectedItem = _lastSeriesFilter;
+            //    if (_lastSeriesFilter == SuggestedCategory.ALL)
+            //        series.SelectedItem = null;
+            //    else
+            //        series.SelectedItem = _lastSeriesFilter;
+            //}
+            //else
+            //{
+            //    Console.WriteLine("Unable to find series for clicked item: {0}", sender);
+            //}
         }
 
         public static T GetVisualChild<T>(Visual parent) where T : Visual {
@@ -232,28 +224,35 @@ namespace BankApp
             var box = sender as ComboBox;
             if (box.SelectedValue == null)
                 return;
-            var category = (SuggestedCategory)box.SelectedValue;
+            var category = (Category)box.SelectedValue;
             setItemCategoryFilter(category);
         }
 
-        private void setItemCategoryFilter(SuggestedCategory c)
+        private void setItemCategoryFilter(Category c)
         {
-            if (c == SuggestedCategory.ALL)
+            if (c.Setting == Category.CategorySetting.ALL)
             {
                 _grid.Items.Filter = null;
                 return;
             }
 
-            _grid.Items.Filter = (a) =>
+            _grid.Items.Filter = a =>
             {
                 var item = a as ViewTransaction;
-                return item.Category == c;
+                return item.UsedCategory.Identifier == c.Identifier;
             };
+
+
+            //_grid.Items.Filter = a =>
+            //{
+            //    var item = a as ViewTransaction;
+            //    return item.UsedCategory == c;
+            //};
         }
 
-        private void setCategoryForSelectedItems(SuggestedCategory category, bool refreshUI = true) {
+        private void setCategoryForSelectedItems(Category category, bool refreshUI = true) {
             foreach (ViewTransaction t in _grid.SelectedItems) {
-                t.Category = category;
+                t.UsedCategory = category;
             }
             if(refreshUI)
                 refreshUIElements();
@@ -268,7 +267,8 @@ namespace BankApp
             if (e.Key != Key.LeftCtrl && Keyboard.IsKeyDown(Key.LeftCtrl) && e.IsRepeat == false) {
                     if(e.Key >= Key.D0 && e.Key <= Key.D9)
                 {
-                    setCategoryForSelectedItems((SuggestedCategory)(e.Key - Key.D0));
+                    var c = getCategoryByIndex(e.Key - Key.D0);
+                    setCategoryForSelectedItems(c);
                 }
             }
             else if (e.Key != Key.LeftAlt && Keyboard.IsKeyDown(Key.LeftAlt) && e.IsRepeat == false)
@@ -297,6 +297,11 @@ namespace BankApp
             }
         }
 
+        private static Category getCategoryByIndex(int idx)
+        {
+            return BankApplicationState.UserConfig.Categories[idx];
+        }
+
         private void onFilterButtonClick(object sender, RoutedEventArgs e)
         {
             string name = ((FrameworkElement)e.Source).Name;
@@ -308,17 +313,22 @@ namespace BankApp
         {
             if(message is DatabaseUpdatedMessage)
             {
-                string[] enumNames = Enum.GetNames(typeof(SuggestedCategory));
-                int n = Math.Min(_wrapPanel.Children.Count, enumNames.Length);
+                var enumNames = getCategories();
+                int n = Math.Min(_wrapPanel.Children.Count, enumNames.Count);
                 for (int i = 0; i < n; ++i)
                 {
                     Label l = _wrapPanel.Children[i] as Label;
-                    l.Content = String.Format("{0} = {1}", i, enumNames[i]);
+                    l.Content = String.Format("{0} = {1}", i, enumNames[i].CategoryName);
                 }
                 _wrapPanel.Children.RemoveRange(n, _wrapPanel.Children.Count - n);
 
                 refreshUIElements();
             }
+        }
+
+        private List<Category> getCategories()
+        {
+            return BankApplicationState.UserConfig.Categories;
         }
 
         public void foobar(object sender, SelectionChangedEventArgs e) {
@@ -340,6 +350,16 @@ namespace BankApp
             {
                 Keyboard.Focus(_grid);
             }
+        }
+
+        public void CloseScreen()
+        {
+            MessageManager.removeListener(this);
+        }
+
+        public void ShowScreen()
+        {
+            MessageManager.addListener(this);
         }
     }
 }

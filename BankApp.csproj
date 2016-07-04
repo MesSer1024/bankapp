@@ -66,24 +66,32 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="AutoCategorizeScreen.xaml.cs">
+    <Compile Include="Messages\ApplicationInitializedMessage.cs" />
+    <Compile Include="Messages\StartApplicationMessage.cs" />
+    <Compile Include="Screens\AutoCategorizeScreen.xaml.cs">
       <DependentUpon>AutoCategorizeScreen.xaml</DependentUpon>
     </Compile>
-    <Compile Include="CloseOverlayMessage.cs" />
-    <Compile Include="DatabaseUpdatedMessage.cs" />
-    <Compile Include="InsertTransactionsMessage.cs" />
-    <Compile Include="LoadTransactionsMessage.cs" />
-    <Compile Include="MessageManager.cs" />
-    <Compile Include="ParseBankInput.xaml.cs">
+    <Compile Include="Messages\CloseOverlayMessage.cs" />
+    <Compile Include="Messages\DatabaseUpdatedMessage.cs" />
+    <Compile Include="Messages\InsertTransactionsMessage.cs" />
+    <Compile Include="Messages\LoadTransactionsMessage.cs" />
+    <Compile Include="Screens\IBankScreen.cs" />
+    <Compile Include="Screens\UserSelection.xaml.cs">
+      <DependentUpon>UserSelection.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="_code\BankApplicationMain.cs" />
+    <Compile Include="_code\BankApplicationState.cs" />
+    <Compile Include="_code\BankApplicationView.cs" />
+    <Compile Include="_code\MessageManager.cs" />
+    <Compile Include="Screens\ParseBankInput.xaml.cs">
       <DependentUpon>ParseBankInput.xaml</DependentUpon>
     </Compile>
-    <Compile Include="SaveTransactionsMessage.cs" />
-    <Compile Include="ShowTransactionsScreen.xaml.cs">
+    <Compile Include="Messages\SaveTransactionsMessage.cs" />
+    <Compile Include="Screens\ShowTransactionsScreen.xaml.cs">
       <DependentUpon>ShowTransactionsScreen.xaml</DependentUpon>
     </Compile>
-    <Compile Include="TransactionApplication.cs" />
-    <Compile Include="WpfUtils.cs" />
-    <Page Include="AutoCategorizeScreen.xaml">
+    <Compile Include="_code\WpfUtils.cs" />
+    <Page Include="Screens\AutoCategorizeScreen.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -99,11 +107,15 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="ParseBankInput.xaml">
+    <Page Include="Screens\ParseBankInput.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="ShowTransactionsScreen.xaml">
+    <Page Include="Screens\ShowTransactionsScreen.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Screens\UserSelection.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
