@@ -113,18 +113,11 @@
             </Grid.RowDefinitions>
             <WrapPanel Orientation="Vertical" Name="_wrapPanel" Margin="0">
                 <WrapPanel.Resources>
-                    <Style TargetType="Label" x:Key="foo">
+                    <Style TargetType="Label">
                         <Setter Property="Margin" Value="0" />
                         <Setter Property="Padding" Value="10,5,100,5" />
                     </Style>
                 </WrapPanel.Resources>
-                <Label Content="foo" Style="{StaticResource ResourceKey=foo}" />
-                <Label Content="foo" Style="{StaticResource ResourceKey=foo}" />
-                <Label Content="foo" Style="{StaticResource ResourceKey=foo}" />
-                <Label Content="foo" Style="{StaticResource ResourceKey=foo}" />
-                <Label Content="foo" Style="{StaticResource ResourceKey=foo}" />
-                <Label Content="foo" Style="{StaticResource ResourceKey=foo}" />
-                <Label Content="foo" Style="{StaticResource ResourceKey=foo}" />
             </WrapPanel>
             <Grid Grid.Row="1" Background="Yellow">
                 <Grid.ColumnDefinitions>

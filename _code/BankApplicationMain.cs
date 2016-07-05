@@ -44,6 +44,9 @@ namespace BankApp._code
             {
                 var msg = message as CloseOverlayMessage;
                 _view.closeOverlay(msg.Overlay);
+            } else if (message is SaveTransactionsMessage)
+            {
+                SaveDatabase();
             }
         }
 
@@ -51,6 +54,7 @@ namespace BankApp._code
         {
             BankApplicationState.AllTransactions.Clear();
             BankApplicationState.UserConfig = config;
+            MessageManager.queueMessage(new UserConfigurationChangedMessage());
         }
 
         private void SetupAndLoadDatabase(UserConfiguration config)
@@ -79,6 +83,17 @@ namespace BankApp._code
         private void ShowTransactionScreen(UserConfiguration config)
         {
             _view.changeScreen(ScreenTypes.ShowTransactions);
+        }
+
+        private void SaveDatabase()
+        {
+            var transactions = new List<Transaction>();
+            foreach (var t in BankApplicationState.AllTransactions)
+            {
+                transactions.Add(t.transaction);
+            }
+
+            BankApplicationState.Database.Save(transactions, Path.Combine(BankApplicationState.UserConfig.SaveFolder, "LastState.mdb"));
         }
     }
 }

@@ -28,7 +28,15 @@ namespace BankApp
         public DateTime DateObject { get { return _date; } }
         public double Amount { get { return transaction.Amount; } }
         public Category WantedCategory { get; set; }
-        public Category UsedCategory { get; set; }
+        public Category UsedCategory {
+            get { return getCategoryByIdentifier(transaction.Category); }
+            set { transaction.Category = value.Identifier; }
+        }
+
+        private Category getCategoryByIdentifier(int categoryId)
+        {
+            return BankApplicationState.UserConfig.Categories[categoryId];
+        }
 
         public ViewTransaction(Transaction t)
         {
@@ -120,59 +128,11 @@ namespace BankApp
 
         public void onMessage(IMessage message)
         {
-            if (message is SaveTransactionsMessage)
-            {
-                SaveDatabase();
-            }
-            else if (message is LoadTransactionsMessage)
-            {
-                LoadDatabase();
-            }
-
         }
 
         private void onAutoCategorize(object sender, RoutedEventArgs e)
         {
             _content.Children.Add(new AutoCategorizeScreen(BankApplicationState.AllTransactions));
         }
-
-        private void SaveDatabase()
-        {
-            var transactions = new List<Transaction>();
-            foreach (var t in BankApplicationState.AllTransactions)
-            {
-                transactions.Add(t.transaction);
-            }
-            new BankLib(null).Save(transactions);
-        }
-
-        private void LoadDatabase()
-        {
-            var foo = new BankLib(null);
-            try
-            {
-                var transactions = foo.Load();
-                foreach (var t in transactions)
-                {
-                    bool add = true;
-                    foreach (var a in BankApplicationState.AllTransactions)
-                    {
-                        if (a.Description == t.Info && a.Date == t.Date && a.Amount == t.Amount)
-                        {
-                            add = false;
-                            break;
-                        }
-                    }
-                    if (add)
-                        BankApplicationState.AllTransactions.Add(new ViewTransaction(t));
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.ToString());
-            }
-            MessageManager.queueMessage(new DatabaseUpdatedMessage());
-        }
-
     }
 }

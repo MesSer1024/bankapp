@@ -68,6 +68,7 @@
     </ApplicationDefinition>
     <Compile Include="Messages\ApplicationInitializedMessage.cs" />
     <Compile Include="Messages\StartApplicationMessage.cs" />
+    <Compile Include="Messages\UserConfigurationChangedMessage.cs" />
     <Compile Include="Screens\AutoCategorizeScreen.xaml.cs">
       <DependentUpon>AutoCategorizeScreen.xaml</DependentUpon>
     </Compile>

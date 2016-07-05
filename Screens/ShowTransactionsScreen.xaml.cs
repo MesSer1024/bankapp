@@ -125,6 +125,15 @@ namespace BankApp
         }
         private void refreshUIElements()
         {
+            var enumNames = getCategories();
+            _wrapPanel.Children.Clear();
+            for (int i = 0; i < enumNames.Count; ++i)
+            {
+                var l = new Label();
+                l.Content = String.Format("{0} = {1}", i, enumNames[i].CategoryName);
+                _wrapPanel.Children.Add(l);
+            }
+
             //find active items given current filter settings
             var filterStartTime = getFilteredStartTime();
             var filterEndTime = getFilteredEndTime();
@@ -307,19 +316,6 @@ namespace BankApp
 
         public void onMessage(IMessage message)
         {
-            if(message is DatabaseUpdatedMessage)
-            {
-                var enumNames = getCategories();
-                int n = Math.Min(_wrapPanel.Children.Count, enumNames.Count);
-                for (int i = 0; i < n; ++i)
-                {
-                    Label l = _wrapPanel.Children[i] as Label;
-                    l.Content = String.Format("{0} = {1}", i, enumNames[i].CategoryName);
-                }
-                _wrapPanel.Children.RemoveRange(n, _wrapPanel.Children.Count - n);
-
-                refreshUIElements();
-            }
         }
 
         private List<Category> getCategories()

@@ -131,12 +131,12 @@ namespace BankAppLib
             
         }
 
-        public void Save(List<Transaction> transactions)
+        public void Save(List<Transaction> transactions, string path = "./output/LastState.mdb")
         {
             var state = new SaveDataState() { Transactions = transactions, LastModification = DateTime.Now };
             var jsonText = JsonConvert.SerializeObject(state);
 
-            var file = new FileInfo("./output/LastState.mdb");
+            var file = new FileInfo(path);
             if (!file.Directory.Exists)
                 file.Directory.Create();
 

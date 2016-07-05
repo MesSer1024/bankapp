@@ -44,17 +44,6 @@ namespace BankApp
                 setSuggestedCategory(item);
             }
             _grid.DataContext = _viewModel;
-
-            //var subset = _allTransactions;
-            //var selIndex = _grid.SelectedIndex;
-            //foreach (var item in subset)
-            //{
-            //    setSuggestedCategory(item);
-            //}
-            //_grid.ItemsSource = subset;
-            //selIndex = Math.Max(0, Math.Min(selIndex, subset.Count()));
-            //_grid.SelectedIndex = selIndex;
-            //writeItems(subset);
         }
 
         private void writeItems(List<ViewTransaction> subset)
@@ -144,10 +133,25 @@ namespace BankApp
                             return true;
                         if (desc.Contains("BG 5428-5200")) //riksbyggen
                             return true;
+                        if (desc.Contains("BG 5097-1282")) //trygg hansa
+                            return true;
+                        if (desc.Contains("BG 802-2220")) //länsförsäkring
+                            return true;
                     }
                     break;
                 case 2: //boende_extra
                     {
+                        if (amount >= 1400) //avoid auto-setting large amounts
+                            return false;
+
+                        if (desc.Contains(" CLAS OHLSON"))
+                            return true;
+
+                        if (desc.Contains(" ZARA"))
+                            return true;
+                        if (desc.Contains(" HEMTEX"))
+                            return true;
+
                         if (desc.Contains(" ÅHLENS"))
                             return true;
                         if (desc.Contains(" KAPPAHL"))
@@ -217,6 +221,12 @@ namespace BankApp
                             return true;
                         if (desc.Contains("COOP "))
                             return true;
+                        if (desc.Contains(" RIFIFI"))
+                            return true;
+                        if (desc.Contains(" FORNO ROMANO"))
+                            return true;
+                        if (desc.Contains(" RIFIFI"))
+                            return true;
                     }
                     break;
                 case 5: //mat_Extra
@@ -231,13 +241,13 @@ namespace BankApp
                             return true;
                         if (desc.Contains("KONDITORI"))
                             return true;
-                        if (desc.Contains("HBO*NORDIC"))
-                            return true;
                         if (desc.Contains("RESTAURANT") || desc.Contains("RESTAURANG"))
                             return true;
                     }
                     break;
                 case 6: //nöje
+                    if (desc.Contains("HBO*NORDIC"))
+                        return true;
                     break;
                 case 7: //övrigt
                     break;
