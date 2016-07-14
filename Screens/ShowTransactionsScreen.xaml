@@ -31,11 +31,15 @@
                     </Style>
                 </Grid.Resources>
                 <Grid.RowDefinitions>
+                    <RowDefinition Height="0" />
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
-                <Label Content="Filters:" FontWeight="Bold" />
+                <DockPanel Grid.Row="3" Visibility="Collapsed">
+                    <Label Content="Text filter:" FontWeight="Bold" DockPanel.Dock="Left" />
+                    <TextBox VerticalContentAlignment="Center" Name="_freeTextFilter" TextChanged="_freeTextFilter_TextChanged"></TextBox>
+                </DockPanel>
                 <DockPanel Grid.Row="1">
                     <Label Content="StartDate:" />
                     <ComboBox VerticalContentAlignment="Center" HorizontalAlignment="Right" HorizontalContentAlignment="Right" Name="_currentMonthSelector" SelectionChanged="foobar" MaxWidth="175" MinWidth="175">
@@ -84,7 +88,7 @@
                                 </ComboBox.ItemTemplate>
                             </ComboBox>
                         </StackPanel>
-                        <CheckBox Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Right" Content="Group items by name:" Checked="onGroupItemsClicked" Name="_groupItemsCheckbox" IsChecked="False" />
+                        <CheckBox Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Right" Content="Group items by name:" Click="onGroupItemsClicked" Name="_groupItemsCheckbox" IsChecked="False" />
                     </Grid>
                 </DockPanel>
             </Grid>

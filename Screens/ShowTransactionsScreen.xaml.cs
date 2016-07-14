@@ -45,6 +45,7 @@ namespace BankApp
             AvailableViewCategories.Add(new Category(Category.CategorySetting.ALL) { CategoryName = "* ALL", Description = "All items", Identifier = 20000 });
             AvailableViewCategories.AddRange(BankApplicationState.UserConfig.Categories);
             _categoryDropdown.ItemsSource = AvailableViewCategories;
+            _categoryDropdown.SelectedIndex = 0;
             _allTransactions = transactions;
             _filters = new FilterHandler(new Button[5] { _filter1, _filter2, _filter3, _filter4, _filter5 });
             _filters.setMarked(0);
@@ -137,6 +138,7 @@ namespace BankApp
                 var item = transactions[i];
                 first.Amount += item.Amount;
             }
+            first.Date = String.Format("{0} items", transactions.Count);
             return first;
         }
 
@@ -439,6 +441,31 @@ namespace BankApp
         private void onGroupItemsClicked(object sender, RoutedEventArgs e)
         {
             refreshUIElements();
+        }
+
+        private void _freeTextFilter_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            var s = _freeTextFilter.Text;
+            if (String.IsNullOrEmpty(s))
+            {
+                _grid.Items.Filter = null;
+            }
+            else
+            {
+                _grid.Items.Filter = TextFilter;
+            }
+        }
+
+        private bool TextFilter(object obj)
+        {
+            var s = _freeTextFilter.Text;
+            if (String.IsNullOrEmpty(s))
+                return true;
+            else
+            {
+                var t = (obj as ViewTransaction);
+                return t.Description.IndexOf(s, StringComparison.OrdinalIgnoreCase) >= 0;
+            }
         }
     }
 }

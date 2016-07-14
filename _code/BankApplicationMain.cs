@@ -68,7 +68,7 @@ namespace BankApp._code
                     bool add = true;
                     foreach (var a in BankApplicationState.AllTransactions)
                     {
-                        if (a.Description == t.Info && a.Date == t.Date && a.Amount == t.Amount)
+                        if (a.Description == t.Info && a.DateOriginal == t.Date && a.Amount == t.Amount)
                         {
                             add = false;
                             break;
