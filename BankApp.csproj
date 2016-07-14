@@ -83,6 +83,7 @@
     <Compile Include="_code\BankApplicationMain.cs" />
     <Compile Include="_code\BankApplicationState.cs" />
     <Compile Include="_code\BankApplicationView.cs" />
+    <Compile Include="_code\LevenshteinDistance.cs" />
     <Compile Include="_code\MessageManager.cs" />
     <Compile Include="Screens\ParseBankInput.xaml.cs">
       <DependentUpon>ParseBankInput.xaml</DependentUpon>
@@ -91,6 +92,7 @@
     <Compile Include="Screens\ShowTransactionsScreen.xaml.cs">
       <DependentUpon>ShowTransactionsScreen.xaml</DependentUpon>
     </Compile>
+    <Compile Include="_code\RuleDefinitions.cs" />
     <Compile Include="_code\WpfUtils.cs" />
     <Page Include="Screens\AutoCategorizeScreen.xaml">
       <SubType>Designer</SubType>

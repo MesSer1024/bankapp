@@ -19,7 +19,7 @@
         <DockPanel Grid.Row="0" HorizontalAlignment="Right">
             <Button DockPanel.Dock="Right" Content="X" Width="30" Height="30" Click="onClose" />
         </DockPanel>
-        <DataGrid Grid.Row="1" HorizontalContentAlignment="Stretch" Name="_grid" AutoGenerateColumns="False" ItemsSource="{Binding AllTransactions}"
+        <DataGrid Grid.Row="1" HorizontalContentAlignment="Stretch" Name="_grid" AutoGenerateColumns="False" ItemsSource="{Binding TransactionsToCategorize}"
           CanUserReorderColumns="True" CanUserResizeColumns="True" CanUserResizeRows="False" CanUserSortColumns="True" 
           CanUserDeleteRows="False" CanUserAddRows="False" AlternationCount="2" Padding="4" ScrollViewer.VerticalScrollBarVisibility="Visible">
             <DataGrid.RowStyle>

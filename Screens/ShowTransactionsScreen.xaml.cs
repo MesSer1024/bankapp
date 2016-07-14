@@ -17,6 +17,8 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using BankAppLib;
 using BankApp.Screens;
+using BankApp._code;
+using System.IO;
 
 namespace BankApp
 {
@@ -123,6 +125,21 @@ namespace BankApp
             Regex regex = new Regex("[^0-9]+");
             e.Handled = regex.IsMatch(e.Text);
         }
+
+        private ViewTransaction generateNewElementFromRange(List<ViewTransaction> transactions)
+        {
+            var first = new ViewTransaction(transactions[0].transaction);
+            if (transactions.Count < 2)
+                return first;
+
+            for(int i=1; i < transactions.Count; ++i)
+            {
+                var item = transactions[i];
+                first.Amount += item.Amount;
+            }
+            return first;
+        }
+
         private void refreshUIElements()
         {
             var enumNames = getCategories();
@@ -138,6 +155,56 @@ namespace BankApp
             var filterStartTime = getFilteredStartTime();
             var filterEndTime = getFilteredEndTime();
             var subset = _allTransactions.Where(a => { return a.DateObject >= filterStartTime && a.DateObject <= filterEndTime; });
+
+            bool groupItems = _groupItemsCheckbox.IsChecked.HasValue ? (bool)_groupItemsCheckbox.IsChecked : false;
+            var sb = new StringBuilder();
+
+            if (groupItems)
+            {
+                var foo = new Dictionary<string, List<ViewTransaction>>();
+                foreach(var item in subset)
+                {
+                    var cleanString = getGroupableString(item.Description);
+                    if (foo.ContainsKey(cleanString))
+                    {
+                        foo[cleanString].Add(item);
+                    }
+                    else
+                    {
+                        //bool match = false;
+                        //int stringDistance = int.MaxValue;
+                        //string bestMatch = "";
+                        //foreach (var s in foo.Keys)
+                        //{
+                        //    int dist = LevenshteinDistance.Compute(s, cleanString);
+                        //    if (dist < stringDistance)
+                        //    {
+                        //        stringDistance = dist;
+                        //        bestMatch = s;
+                        //        match = true;
+                        //    }
+                        //}
+                        //if (match && stringDistance < 3)
+                        //{
+                        //    Console.WriteLine("{2}\t : Combining {0} \t\t\t& {1}", cleanString, bestMatch, stringDistance);
+                        //    foo[bestMatch].Add(item);
+                        //}
+                        //else
+                        //{
+                            foo.Add(cleanString, new List<ViewTransaction>() { item });
+                        //}
+                    }
+                }
+
+                var container = new List<ViewTransaction>();
+                foreach(var item in foo)
+                {
+                    container.Add(generateNewElementFromRange(item.Value));
+                }
+                subset = container;
+            }
+
+
 
             //populate each transaction category excluding incomes
             var totalIncome = 0;
@@ -163,6 +230,7 @@ namespace BankApp
                 var key = t.UsedCategory.CategoryName;
                 chartData[key] += (int)t.Amount;
             }
+
             var selIndex = _grid.SelectedIndex;
             _grid.ItemsSource = subset;
             _grid.SelectedIndex = selIndex;
@@ -185,6 +253,20 @@ namespace BankApp
             _pieChart.DataContext = chartData;
             var series = _pieChart.Series[0] as PieSeries;
             series.MouseUp += series_MouseUp;
+        }
+
+        private string getGroupableString(string description)
+        {
+            if (description.Contains("Kortköp "))
+            {
+                var parts = description.Split(' ');
+                int len = parts[0].Length;
+                len += parts[1].Length;
+                len += 2;
+                var s = description.Substring(len);
+                return s;
+            }
+            return description;
         }
 
         void series_MouseUp(object sender, MouseButtonEventArgs e)
@@ -352,6 +434,11 @@ namespace BankApp
         public void ShowScreen()
         {
             MessageManager.addListener(this);
+        }
+
+        private void onGroupItemsClicked(object sender, RoutedEventArgs e)
+        {
+            refreshUIElements();
         }
     }
 }

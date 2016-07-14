@@ -26,7 +26,8 @@ namespace BankApp
         public string Description { get { return transaction.Info; } }
         public string Date { get { return transaction.Date; } }
         public DateTime DateObject { get { return _date; } }
-        public double Amount { get { return transaction.Amount; } }
+        public double Amount { get; set; }
+        public double RealAmount { get { return transaction.Amount; } }
         public Category WantedCategory { get; set; }
         public Category UsedCategory {
             get { return getCategoryByIdentifier(transaction.Category); }
@@ -40,6 +41,7 @@ namespace BankApp
 
         public ViewTransaction(Transaction t)
         {
+            Amount = t.Amount;
             transaction = t;
             if(transaction.Category >= BankApplicationState.UserConfig.Categories.Count)
             {

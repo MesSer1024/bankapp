@@ -72,16 +72,19 @@
                             <Button Name="_filter4" Content="foo!" Style="{StaticResource ResourceKey=btns}" Click="onFilterButtonClick" />
                             <Button Name="_filter5" Content="foo!" Style="{StaticResource ResourceKey=btns}" Click="onFilterButtonClick" />
                         </StackPanel>
-                        <Label Content="Category:" Grid.Column="1" HorizontalAlignment="Right" />
-                        <ComboBox Grid.Row="1" Grid.Column="1" Name="_categoryDropdown" Margin="5" MinWidth="125" MaxWidth="225" VerticalContentAlignment="Center" HorizontalAlignment="Right" HorizontalContentAlignment="Right" Padding="0,0,8,0" DropDownClosed="ComboBox_DropDownClosed_1" SelectedIndex="5" IsTabStop="False">
-                            <ComboBox.ItemTemplate>
-                                <DataTemplate>
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="{Binding CategoryName}"  />
-                                    </StackPanel>
-                                </DataTemplate>
-                            </ComboBox.ItemTemplate>
-                        </ComboBox>
+                        <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal">
+                            <Label Content="Category:" HorizontalAlignment="Right" />
+                            <ComboBox Name="_categoryDropdown" Margin="5" MinWidth="125" MaxWidth="225" VerticalContentAlignment="Center" HorizontalAlignment="Right" HorizontalContentAlignment="Right" Padding="0,0,8,0" DropDownClosed="ComboBox_DropDownClosed_1" SelectedIndex="5" IsTabStop="False">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="{Binding CategoryName}"  />
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                        </StackPanel>
+                        <CheckBox Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Right" Content="Group items by name:" Checked="onGroupItemsClicked" Name="_groupItemsCheckbox" IsChecked="False" />
                     </Grid>
                 </DockPanel>
             </Grid>
