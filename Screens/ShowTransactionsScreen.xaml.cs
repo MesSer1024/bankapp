@@ -158,13 +158,56 @@ namespace BankApp
             var filterEndTime = getFilteredEndTime();
             var subset = _allTransactions.Where(a => { return a.DateObject >= filterStartTime && a.DateObject <= filterEndTime; });
 
+            DateTime earliest = DateTime.MaxValue;
+            DateTime latest = DateTime.MinValue;
+
+            foreach(var item in subset)
+            {
+                if (earliest == null || item.DateObject < earliest)
+                    earliest = item.DateObject;
+                else if (latest == null || item.DateObject > latest)
+                    latest = item.DateObject;
+            }
+            var totalMonthsInSpan = Math.Ceiling((latest - earliest).Days / 30.0f);
+
+            //populate each transaction category excluding incomes
+            var totalIncome = 0;
+            var totalExpense = 0;
+            int filteredExpenses = 0;
+            var chartData = new Dictionary<string, int>();
+            var filteredCategory = (Category)_categoryDropdown.SelectedValue;
+            foreach (var c in BankApplicationState.UserConfig.Categories)
+            {
+                chartData.Add(c.CategoryName, 0);
+            }
+            foreach (var t in subset)
+            {
+                if (t.UsedCategory.Setting == Category.CategorySetting.ExcludeEverywhere)
+                    continue;
+
+                if (t.Amount > 0)
+                    totalIncome += (int)t.Amount;
+                else
+                {
+                    totalExpense += (int)t.Amount;
+                    if (filteredCategory.Identifier == 20000 || t.UsedCategory.Identifier == filteredCategory.Identifier)
+                        filteredExpenses += (int)t.Amount;
+                }
+
+                if (t.UsedCategory.Setting == Category.CategorySetting.Income)
+                    continue; //don't show in piechart
+
+                var key = t.UsedCategory.CategoryName;
+                chartData[key] += (int)t.Amount;
+            }
+
             bool groupItems = _groupItemsCheckbox.IsChecked.HasValue ? (bool)_groupItemsCheckbox.IsChecked : false;
             var sb = new StringBuilder();
 
             if (groupItems)
             {
                 var foo = new Dictionary<string, List<ViewTransaction>>();
-                foreach(var item in subset)
+                foreach (var item in subset)
                 {
                     var cleanString = getGroupableString(item.Description);
                     if (foo.ContainsKey(cleanString))
@@ -193,53 +236,27 @@ namespace BankApp
                         //}
                         //else
                         //{
-                            foo.Add(cleanString, new List<ViewTransaction>() { item });
+                        foo.Add(cleanString, new List<ViewTransaction>() { item });
                         //}
                     }
                 }
 
                 var container = new List<ViewTransaction>();
-                foreach(var item in foo)
+                foreach (var item in foo)
                 {
                     container.Add(generateNewElementFromRange(item.Value));
                 }
                 subset = container;
             }
 
-
-
-            //populate each transaction category excluding incomes
-            var totalIncome = 0;
-            var totalExpense = 0;
-            var chartData = new Dictionary<string, int>();
-            foreach(var c in BankApplicationState.UserConfig.Categories)
-            {
-                chartData.Add(c.CategoryName, 0);
-            }
-            foreach (var t in subset)
-            {
-                if (t.UsedCategory.Setting == Category.CategorySetting.ExcludeEverywhere)
-                    continue;
-
-                if (t.Amount > 0)
-                    totalIncome += (int)t.Amount;
-                else 
-                    totalExpense += (int)t.Amount;
-
-                if (t.UsedCategory.Setting == Category.CategorySetting.Income)
-                    continue; //don't show in piechart
-
-                var key = t.UsedCategory.CategoryName;
-                chartData[key] += (int)t.Amount;
-            }
-
             var selIndex = _grid.SelectedIndex;
             _grid.ItemsSource = subset;
             _grid.SelectedIndex = selIndex;
             selIndex = Math.Max(0, Math.Min(selIndex, subset.Count()));
+
             WpfUtils.toMainThread(() => {
-                _totalText.Content = "Total income in time span: \nTotal expenses in time span: \nSubTotal:";
-                _totalAmount.Content = String.Format("{0}\n{1}\n{2}", totalIncome, -totalExpense, (totalIncome + totalExpense));
+                _totalText.Content = String.Format("Total income in time span: \nTotal expenses in time span: \nFiltered expenses: \nFiltered expenses per months({0}):", totalMonthsInSpan);
+                _totalAmount.Content = String.Format("{0}\n{1}\n{2}\n{3}", totalIncome, -totalExpense, -filteredExpenses,Math.Ceiling((-filteredExpenses) /totalMonthsInSpan));
                 var row = _grid.ItemContainerGenerator.ContainerFromIndex(selIndex) as DataGridRow;
                 if (row != null) {
                     var presenter = GetVisualChild<DataGridCellsPresenter>(row);
@@ -329,6 +346,7 @@ namespace BankApp
             if (c == null || c == AvailableViewCategories[0])
             {
                 _grid.Items.Filter = null;
+                refreshUIElements();
                 return;
             }
 
@@ -337,6 +355,7 @@ namespace BankApp
                 var item = a as ViewTransaction;
                 return item.UsedCategory.Identifier == c.Identifier;
             };
+            refreshUIElements();
         }
 
         private void setCategoryForSelectedItems(Category category, bool refreshUI = true) {
