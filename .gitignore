@@ -4,3 +4,5 @@ _assets/*
 */obj/*
 bin/*
 obj/*
+packages/*
+!packages/repositories.config

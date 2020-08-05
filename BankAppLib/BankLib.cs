@@ -74,9 +74,12 @@ namespace BankAppLib
         {
             var floatInfo = new NumberFormatInfo();
             floatInfo.NegativeSign = "-";
-            floatInfo.CurrencyDecimalSeparator = ",";
+            //floatInfo.CurrencyDecimalSeparator = ",";
+            floatInfo.NumberDecimalSeparator = ",";
             floatInfo.NumberGroupSeparator = ".";
             int count = 0;
+
+            String replacedDate = "";
 
             foreach (var s in lines)
             {
@@ -85,50 +88,56 @@ namespace BankAppLib
                 //sanity check
                 if (String.IsNullOrEmpty(s))
                     continue;
-                var parts = s.Split(',').ToArray();
+                var parts = s.Split(';').ToArray();
                 var foo = parts.ToList();
-                if (parts.Length < 5 || parts.Length > 10)
+                if (parts.Length != 8)
                 {
+                    //[0]	"Bokföringsdag"	string
+                    //[1]	"Belopp"	string
+                    //[2]	"Avsändare"	string
+                    //[3]	"Mottagare"	string
+                    //[4]	"Namn"	string
+                    //[5]	"Rubrik"	string
+                    //[6]	"Saldo"	string
+                    //[7]	"Valuta"	string
+
                     if (_errorHandler != null)
-                        _errorHandler.add(new ParseError() { Error = "Splitting line on ',' resulted in too many or too few parts", LineNumber = count, SourceLine = s });
+                        _errorHandler.add(new ParseError() { Error = "Splitting line on ';' resulted in too many or too few parts", LineNumber = count, SourceLine = s });
                     continue;
                 }
 
                 //remove special case lines [every time a field has a ',' in it, the line starts with "-character]
-                if(parts[1].StartsWith("\"")) {
-                    foo[1] += " " + foo[2];
-                    foo.RemoveAt(2);
-                    parts = foo.ToArray();
-                }
 
-                var t = new Transaction() { Date = parts[0], Info = parts[1] };
-                
-                //create line which only contains information related to money part of the transaction [create string and remove everything else]
-                var cnt = parts[0].Length + parts[1].Length + parts[2].Length + 3;
-                var moneyLine = s.Substring(cnt);
-                int amt = 0;
-                moneyLine = moneyLine.Replace("\"", "");
-                parts = moneyLine.Split(',');
-                if (parts.Length < 2 || parts.Length > 4)
+                var date = parts[0];
+                if (date.Contains("Invalid"))
                 {
-                    if(_errorHandler != null)
-                        _errorHandler.add(new ParseError() { LineNumber = count, SourceLine = s, Error = "Sanity check on part of line containing transaction amount were wrong, line=" + moneyLine });
-                    continue;
+                    date = replacedDate;
+                    if (date.Contains("Invalid"))
+                        date = "2020-01-01";
                 }
 
-                if (int.TryParse(parts[0], NumberStyles.AllowLeadingSign | NumberStyles.AllowThousands, floatInfo, out amt))
+
+                var t = new Transaction() { Date = date, Info = parts[5] };
+
+                //create line which only contains information related to money part of the transaction [create string and remove everything else]
+
+                var moneyLine = parts[1].Split(',')[0];
+                int amt = 0;
+                if (int.TryParse(moneyLine, NumberStyles.AllowLeadingSign | NumberStyles.AllowThousands, floatInfo, out amt))
                 {
                     t.Amount = amt;
                 }
                 else
                 {
                     if (_errorHandler != null)
-                        _errorHandler.add(new ParseError() { LineNumber = count, SourceLine = s, Error = String.Format("Unable to convert {0} to a number", parts[0]) });
+                        _errorHandler.add(new ParseError() { LineNumber = count, SourceLine = s, Error = String.Format("Unable to convert {0} to a number", moneyLine) });
                     continue;
                 }
                 transactions.Add(t);
+
+                replacedDate = date;
             }
-            
+
         }
 
         public void Save(List<Transaction> transactions, string path = "./output/LastState.mdb")
