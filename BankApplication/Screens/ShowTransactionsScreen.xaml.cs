@@ -168,7 +168,8 @@ namespace BankApp
                 else if (latest == null || item.DateObject > latest)
                     latest = item.DateObject;
             }
-            var totalMonthsInSpan = Math.Ceiling((latest - earliest).Days / 30.0f);
+            var totalDays = (latest - earliest).Days;
+            var totalMonthsInSpan = Math.Round((latest - earliest).Days / 30.5f);
 
             //populate each transaction category excluding incomes
             var totalIncome = 0;
@@ -183,6 +184,8 @@ namespace BankApp
             foreach (var t in subset)
             {
                 if (t.UsedCategory.Setting == Category.CategorySetting.ExcludeEverywhere)
+                    continue;
+                if (t.UsedCategory.Setting == Category.CategorySetting.ExcludeExpense)
                     continue;
 
                 if (t.Amount > 0)

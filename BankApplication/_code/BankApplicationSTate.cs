@@ -16,6 +16,7 @@ namespace BankApp
             Default,
             Income,
             ExcludeEverywhere,
+            ExcludeExpense,
             ALL,
         }
 
@@ -74,7 +75,7 @@ namespace BankApp
             config.Categories.Add(new Category() { Identifier = config.Categories.Count, CategoryName = "Mat_extra", Description = "Mat eller dryck relaterat till restauranger, systembolaget, pubbar, fest ..." });
             config.Categories.Add(new Category() { Identifier = config.Categories.Count, CategoryName = "Nöje", Description = "Minigolf, bio, spa, hotell, utlandsresor, nöjesfält ..." });
             config.Categories.Add(new Category() { Identifier = config.Categories.Count, CategoryName = "Övrigt", Description = "Engångskostnader eller saker som inte passar på andra ställen: barnvagn, ..." });
-            config.Categories.Add(new Category() { Identifier = config.Categories.Count, CategoryName = "Sparande", Description = "Sparande: ammortering osv" });
+            config.Categories.Add(new Category(Category.CategorySetting.ExcludeExpense) { Identifier = config.Categories.Count, CategoryName = "Sparande", Description = "Sparande: ammortering osv" });
             config.Categories.Add(new Category() { Identifier = config.Categories.Count, CategoryName = "Barnsaker", Description = "Kläder, skor och leksaker" });
             config.Categories.Add(new Category(Category.CategorySetting.Income) { Identifier = config.Categories.Count, CategoryName = "INKOMST", Description = "Alla inkomster på ett och samma ställe" });
 
@@ -144,6 +145,7 @@ namespace BankApp
                 transport.Add(new KeywordRule("TÅG", cat));
                 transport.Add(new KeywordRule(" BG 5270-6009 ", cat)); // if skadeförsäkring
                 transport.Add(new KeywordRule(" BG 5051-6822 ", cat)); // fordonskatt
+                transport.Add(new MathKeywordRule(" BG 282-4647", cat, -100, true)); // trängselskatt
                 transport.Add(new MathKeywordRule(" STATOIL", cat, -225, true));
                 transport.Add(new MathKeywordRule(" QSTAR", cat, -225, true));
                 transport.Add(new MathKeywordRule(" INGO", cat, -225, true));
