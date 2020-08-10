@@ -79,7 +79,7 @@ namespace BankApp
             config.Categories.Add(new Category() { Identifier = config.Categories.Count, CategoryName = "Barnsaker", Description = "Kläder, skor och leksaker" });
             config.Categories.Add(new Category(Category.CategorySetting.Income) { Identifier = config.Categories.Count, CategoryName = "INKOMST", Description = "Alla inkomster på ett och samma ställe" });
 
-            config.SaveFolder = "./output/shared/";
+            config.SaveFolder = "../output/shared/";
 
 
             config.Rules = new List<IKeywordRule>();
@@ -225,7 +225,7 @@ namespace BankApp
             config.Categories.Add(new Category() { Identifier = config.Categories.Count, CategoryName = "Sparande", Description = "Sparande:" });
             config.Categories.Add(new Category(Category.CategorySetting.Income) { Identifier = config.Categories.Count, CategoryName = "INKOMST", Description = "Alla inkomster på ett och samma ställe" });
 
-            config.SaveFolder = "./output/user1/";
+            config.SaveFolder = "../output/user1/";
         }
     }
 
