@@ -55,6 +55,7 @@ namespace BankApp
 
         private DateTime _date;
         public bool isIncome { get { return transaction.Amount > 0; } }
+        public bool isExcluded { get { return UsedCategory.Setting == Category.CategorySetting.ExcludeEverywhere || UsedCategory.Setting == Category.CategorySetting.ExcludeExpense; } }
     }
 
     /// <summary>

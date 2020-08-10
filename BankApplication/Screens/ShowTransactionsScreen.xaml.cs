@@ -260,6 +260,7 @@ namespace BankApp
             WpfUtils.toMainThread(() => {
                 _totalText.Content = String.Format("Total income in time span: \nTotal expenses in time span: \nFiltered expenses: \nFiltered expenses per months({0}):", totalMonthsInSpan);
                 _totalAmount.Content = String.Format("{0}\n{1}\n{2}\n{3}", totalIncome, -totalExpense, -filteredExpenses,Math.Ceiling((-filteredExpenses) /totalMonthsInSpan));
+                _selectedText.Content = 0;
                 //var row = _grid.ItemContainerGenerator.ContainerFromIndex(selIndex) as DataGridRow;
                 //if (row != null) {
                 //    var presenter = GetVisualChild<DataGridCellsPresenter>(row);
@@ -488,6 +489,28 @@ namespace BankApp
                 var t = (obj as ViewTransaction);
                 return t.Description.IndexOf(s, StringComparison.OrdinalIgnoreCase) >= 0;
             }
+        }
+
+        private void _grid_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            double totalAmount = 0; 
+
+            foreach(var gridItem in _grid.SelectedCells)
+            {
+                if (!gridItem.IsValid)
+                    continue;
+
+                if (gridItem.Column.DisplayIndex != 0)
+                    continue; // each column [in row] is treated as a unique entry [Each ViewTransaction will be handled 4 times without this line]
+
+                var cell = (gridItem.Item as ViewTransaction);
+                totalAmount += cell.Amount;
+            }
+
+            WpfUtils.toMainThread(() => {
+                _selectedText.Content = "" + totalAmount;
+            }, ARBITARY_TIME_TO_WAIT_BEFORE_UPDATING_VIEW_ITEMS);
+
         }
     }
 }

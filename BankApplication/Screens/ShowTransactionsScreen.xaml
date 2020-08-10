@@ -92,10 +92,14 @@
             </Grid>
             <DataGrid Grid.Row="2" HorizontalContentAlignment="Stretch" Name="_grid" ItemsSource="{Binding Transaction}" AutoGenerateColumns="False"
           CanUserReorderColumns="True" CanUserResizeColumns="True" CanUserResizeRows="False" CanUserSortColumns="True" 
-          CanUserDeleteRows="False" CanUserAddRows="False" AlternationCount="2" Padding="4" KeyDown="_grid_key" ScrollViewer.VerticalScrollBarVisibility="Visible">
+          CanUserDeleteRows="False" CanUserAddRows="False" AlternationCount="2" Padding="4" KeyDown="_grid_key" ScrollViewer.VerticalScrollBarVisibility="Visible"
+          SelectionChanged="_grid_SelectionChanged">
                 <DataGrid.RowStyle>
                     <Style TargetType="DataGridRow">
                         <Style.Triggers>
+                            <DataTrigger Binding="{Binding isExcluded}" Value="true">
+                                <Setter Property="Background" Value="#FFD1D1D1"></Setter>
+                            </DataTrigger>
                             <DataTrigger Binding="{Binding isIncome}" Value="true">
                                 <Setter Property="Background" Value="Lime"></Setter>
                             </DataTrigger>
@@ -114,6 +118,7 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="135" />
                 <RowDefinition Height="75" />
+                <RowDefinition Height="35" />
                 <RowDefinition Height="1*" />
             </Grid.RowDefinitions>
             <WrapPanel Orientation="Vertical" Name="_wrapPanel" Margin="0">
@@ -134,7 +139,16 @@
                 <Label Grid.Column="1" Name="_totalText" Content="Total Income:\nTotal Expenses:" VerticalContentAlignment="Center" HorizontalContentAlignment="Right" FontWeight="Bold" />
                 <Label Grid.Column="2" Name="_totalAmount" Content="100\n100" VerticalContentAlignment="Center" HorizontalContentAlignment="Left" FontWeight="Bold" />
             </Grid>
-            <!-- my:Chart Grid.Row="2" Name="_pieChart" Title="Expenses during Month" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" MinWidth="450" MinHeight="450">
+            <Grid Grid.Row="2" Background="LightCyan">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="200" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="200" />
+                </Grid.ColumnDefinitions>
+                <Label Content="Sum of Selected Items:" VerticalContentAlignment="Center" HorizontalContentAlignment="Right" FontWeight="Bold" />
+                <Label Grid.Column="1" Name="_selectedText" Content="Sum of Selected Items:" VerticalContentAlignment="Center" HorizontalContentAlignment="Left" FontWeight="Bold" />
+            </Grid>
+            <!-- my:Chart Grid.Row="3" Name="_pieChart" Title="Expenses during Month" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" MinWidth="450" MinHeight="450">
                 <my:PieSeries DependentValuePath="Value" IndependentValuePath="Key" ItemsSource="{Binding}" IsSelectionEnabled="True" ScrollViewer.VerticalScrollBarVisibility="Disabled">
                     <my:PieSeries.Palette>
                         <tk:ResourceDictionaryCollection>
