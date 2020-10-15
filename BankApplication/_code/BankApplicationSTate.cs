@@ -68,15 +68,15 @@ namespace BankApp
         {
             config.Categories = new List<Category>();
             config.Categories.Add(new Category(Category.CategorySetting.ExcludeEverywhere) { Identifier = config.Categories.Count, CategoryName = "EXCLUDE", Description = "Exclude this transaction from all calculations and pie charts as if it never happened" });
-            config.Categories.Add(new Category() { Identifier = config.Categories.Count, CategoryName = "Boende", Description = "Fasta kostnader för boende, bostadslån, el, vatten, försäkring osv" });
-            config.Categories.Add(new Category() { Identifier = config.Categories.Count, CategoryName = "Boende_extra", Description = "Övriga hushållskostnader som berör hemmet: möbler, gardiner, teknikprylar, mediciner" });
+            config.Categories.Add(new Category() { Identifier = config.Categories.Count, CategoryName = "Boende", Description = "Fasta kostnader för boende, bostadslån, el, vatten, hemförsäkring osv" });
+            config.Categories.Add(new Category() { Identifier = config.Categories.Count, CategoryName = "Hushåll", Description = "Övriga hushållskostnader som berör hemmet: barnvård, person- & liv-försäkring, möbler, gardiner, teknikprylar, mediciner" });
             config.Categories.Add(new Category() { Identifier = config.Categories.Count, CategoryName = "Transport", Description = "Tågresor, bil, bensin, cykel" });
             config.Categories.Add(new Category() { Identifier = config.Categories.Count, CategoryName = "Mat", Description = "Mat och produkter inhandlade på ica/willys ..." });
             config.Categories.Add(new Category() { Identifier = config.Categories.Count, CategoryName = "Mat_extra", Description = "Mat eller dryck relaterat till restauranger, systembolaget, pubbar, fest ..." });
             config.Categories.Add(new Category() { Identifier = config.Categories.Count, CategoryName = "Nöje", Description = "Minigolf, bio, spa, hotell, utlandsresor, nöjesfält ..." });
             config.Categories.Add(new Category() { Identifier = config.Categories.Count, CategoryName = "Övrigt", Description = "Engångskostnader eller saker som inte passar på andra ställen: barnvagn, ..." });
             config.Categories.Add(new Category(Category.CategorySetting.ExcludeExpense) { Identifier = config.Categories.Count, CategoryName = "Sparande", Description = "Sparande: ammortering osv" });
-            config.Categories.Add(new Category() { Identifier = config.Categories.Count, CategoryName = "Barnsaker", Description = "Kläder, skor och leksaker" });
+            config.Categories.Add(new Category() { Identifier = config.Categories.Count, CategoryName = "Barnsaker", Description = "Kläder, skor och leksaker (ej simskola, förskoleavgift...)" });
             config.Categories.Add(new Category(Category.CategorySetting.Income) { Identifier = config.Categories.Count, CategoryName = "INKOMST", Description = "Alla inkomster på ett och samma ställe" });
 
             config.SaveFolder = "../output/shared/";
@@ -94,7 +94,6 @@ namespace BankApp
                 living.Add(new KeywordRule(" PG 820004-0", cat)); //telia
                 living.Add(new KeywordRule(" BG 5014-1100", cat)); //telia
                 living.Add(new KeywordRule(" PG 920003-1", cat)); //tv-licens
-                living.Add(new KeywordRule("Vardagspaket", cat)); //kortavgift
                 living.Add(new KeywordRule("BG 820-0040", cat)); //telia
                 living.Add(new KeywordRule("PG 4131300-8", cat)); //vattenfall
                 living.Add(new KeywordRule("BG 5110-8348", cat)); //vattenfall
@@ -109,6 +108,7 @@ namespace BankApp
                 var cat = config.Categories.Find(a => a.Identifier == 2);
                 var living_extra = config.Rules;
                 living_extra.Add(new KeywordRule("BG 230-0176", cat)); //barnvård - Uppsala Kommun
+                living_extra.Add(new KeywordRule("Vardagspaket", cat)); //kortavgift
                 living_extra.Add(new KeywordRule("BG 5786-2690", cat)); //folksam
                 living_extra.Add(new KeywordRule(" TRYGG HANSA", cat));
                 living_extra.Add(new KeywordRule("BG 5097-1282", cat)); //trygg hansa
